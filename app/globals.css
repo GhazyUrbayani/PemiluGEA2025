@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: var(--font-trade-gothic), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+h1,
+h2 {
+  font-family: var(--font-death-star), Impact, "Arial Black", sans-serif;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-helvetica-black), "Arial Bold", sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    /* Star Wars Theme - Light Mode (Space Station) */
+    --background: 34 38% 92%; /* neutral-cream */
+    --foreground: 240 8% 13%; /* vader-black */
+    --card: 0 0% 100%;
+    --card-foreground: 240 8% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 8% 13%;
+    --primary: 0 83% 33%; /* sith-red */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 43 47% 65%; /* lightsaber-yellow */
+    --secondary-foreground: 240 8% 13%;
+    --muted: 220 10% 55%; /* metallic-gray */
+    --muted-foreground: 0 0% 45%;
+    --accent: 17 64% 64%; /* xwing-orange */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 83% 33%; /* sith-red */
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 10% 55%;
+    --input: 220 10% 55%;
+    --ring: 0 83% 33%;
+    --chart-1: 120 36% 60%; /* yoda-green */
+    --chart-2: 195 47% 53%; /* r2d2-blue */
+    --chart-3: 43 47% 65%; /* lightsaber-yellow */
+    --chart-4: 290 21% 64%; /* mace-purple */
+    --chart-5: 188 73% 52%; /* cyan-saber */
+    --radius: 0.5rem;
+  }
+  .dark {
+    /* Star Wars Theme - Dark Mode (Dark Side) */
+    --background: 215 23% 14%; /* space-dark */
+    --foreground: 34 38% 92%; /* neutral-cream */
+    --card: 240 8% 13%; /* vader-black */
+    --card-foreground: 34 38% 92%;
+    --popover: 240 8% 13%;
+    --popover-foreground: 34 38% 92%;
+    --primary: 0 83% 33%; /* sith-red */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 43 47% 65%; /* lightsaber-yellow */
+    --secondary-foreground: 240 8% 13%;
+    --muted: 220 10% 55%; /* metallic-gray */
+    --muted-foreground: 34 38% 92%;
+    --accent: 188 73% 52%; /* cyan-saber */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 83% 33%; /* sith-red */
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 10% 55%;
+    --input: 220 10% 55%;
+    --ring: 43 47% 65%;
+    --chart-1: 120 36% 60%; /* yoda-green */
+    --chart-2: 195 47% 53%; /* r2d2-blue */
+    --chart-3: 43 47% 65%; /* lightsaber-yellow */
+    --chart-4: 290 21% 64%; /* mace-purple */
+    --chart-5: 188 73% 52%; /* cyan-saber */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

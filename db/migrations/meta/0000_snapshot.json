@@ -1,0 +1,572 @@
+{
+  "id": "fe09b277-db68-4d21-8dd0-3fed85bcd5b4",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.admin": {
+      "name": "admin",
+      "schema": "",
+      "columns": {
+        "nim": {
+          "name": "nim",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "admin_nim_unique": {
+          "name": "admin_nim_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "nim"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.kahim_candidate": {
+      "name": "kahim_candidate",
+      "schema": "",
+      "columns": {
+        "nim": {
+          "name": "nim",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "kahim_candidate_nim_unique": {
+          "name": "kahim_candidate_nim_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "nim"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.offline_vote": {
+      "name": "offline_vote",
+      "schema": "",
+      "columns": {
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sk1": {
+          "name": "sk1",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sk2": {
+          "name": "sk2",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sk3": {
+          "name": "sk3",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sk4": {
+          "name": "sk4",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ss1": {
+          "name": "ss1",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ss2": {
+          "name": "ss2",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ss3": {
+          "name": "ss3",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "offline_vote_token_voter_token_fk": {
+          "name": "offline_vote_token_voter_token_fk",
+          "tableFrom": "offline_vote",
+          "tableTo": "voter",
+          "columnsFrom": [
+            "token"
+          ],
+          "columnsTo": [
+            "token"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "offline_vote_sk1_kahim_candidate_nim_fk": {
+          "name": "offline_vote_sk1_kahim_candidate_nim_fk",
+          "tableFrom": "offline_vote",
+          "tableTo": "kahim_candidate",
+          "columnsFrom": [
+            "sk1"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "offline_vote_sk2_kahim_candidate_nim_fk": {
+          "name": "offline_vote_sk2_kahim_candidate_nim_fk",
+          "tableFrom": "offline_vote",
+          "tableTo": "kahim_candidate",
+          "columnsFrom": [
+            "sk2"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "offline_vote_sk3_kahim_candidate_nim_fk": {
+          "name": "offline_vote_sk3_kahim_candidate_nim_fk",
+          "tableFrom": "offline_vote",
+          "tableTo": "kahim_candidate",
+          "columnsFrom": [
+            "sk3"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "offline_vote_sk4_kahim_candidate_nim_fk": {
+          "name": "offline_vote_sk4_kahim_candidate_nim_fk",
+          "tableFrom": "offline_vote",
+          "tableTo": "kahim_candidate",
+          "columnsFrom": [
+            "sk4"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "offline_vote_ss1_senator_candidate_nim_fk": {
+          "name": "offline_vote_ss1_senator_candidate_nim_fk",
+          "tableFrom": "offline_vote",
+          "tableTo": "senator_candidate",
+          "columnsFrom": [
+            "ss1"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "offline_vote_ss2_senator_candidate_nim_fk": {
+          "name": "offline_vote_ss2_senator_candidate_nim_fk",
+          "tableFrom": "offline_vote",
+          "tableTo": "senator_candidate",
+          "columnsFrom": [
+            "ss2"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "offline_vote_ss3_senator_candidate_nim_fk": {
+          "name": "offline_vote_ss3_senator_candidate_nim_fk",
+          "tableFrom": "offline_vote",
+          "tableTo": "senator_candidate",
+          "columnsFrom": [
+            "ss3"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "offline_vote_token_unique": {
+          "name": "offline_vote_token_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.online_vote": {
+      "name": "online_vote",
+      "schema": "",
+      "columns": {
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sk1": {
+          "name": "sk1",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sk2": {
+          "name": "sk2",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sk3": {
+          "name": "sk3",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sk4": {
+          "name": "sk4",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ss1": {
+          "name": "ss1",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ss2": {
+          "name": "ss2",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ss3": {
+          "name": "ss3",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "accepted_status": {
+          "name": "accepted_status",
+          "type": "accepted_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "online_vote_token_voter_token_fk": {
+          "name": "online_vote_token_voter_token_fk",
+          "tableFrom": "online_vote",
+          "tableTo": "voter",
+          "columnsFrom": [
+            "token"
+          ],
+          "columnsTo": [
+            "token"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "online_vote_sk1_kahim_candidate_nim_fk": {
+          "name": "online_vote_sk1_kahim_candidate_nim_fk",
+          "tableFrom": "online_vote",
+          "tableTo": "kahim_candidate",
+          "columnsFrom": [
+            "sk1"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "online_vote_sk2_kahim_candidate_nim_fk": {
+          "name": "online_vote_sk2_kahim_candidate_nim_fk",
+          "tableFrom": "online_vote",
+          "tableTo": "kahim_candidate",
+          "columnsFrom": [
+            "sk2"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "online_vote_sk3_kahim_candidate_nim_fk": {
+          "name": "online_vote_sk3_kahim_candidate_nim_fk",
+          "tableFrom": "online_vote",
+          "tableTo": "kahim_candidate",
+          "columnsFrom": [
+            "sk3"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "online_vote_sk4_kahim_candidate_nim_fk": {
+          "name": "online_vote_sk4_kahim_candidate_nim_fk",
+          "tableFrom": "online_vote",
+          "tableTo": "kahim_candidate",
+          "columnsFrom": [
+            "sk4"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "online_vote_ss1_senator_candidate_nim_fk": {
+          "name": "online_vote_ss1_senator_candidate_nim_fk",
+          "tableFrom": "online_vote",
+          "tableTo": "senator_candidate",
+          "columnsFrom": [
+            "ss1"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "online_vote_ss2_senator_candidate_nim_fk": {
+          "name": "online_vote_ss2_senator_candidate_nim_fk",
+          "tableFrom": "online_vote",
+          "tableTo": "senator_candidate",
+          "columnsFrom": [
+            "ss2"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "online_vote_ss3_senator_candidate_nim_fk": {
+          "name": "online_vote_ss3_senator_candidate_nim_fk",
+          "tableFrom": "online_vote",
+          "tableTo": "senator_candidate",
+          "columnsFrom": [
+            "ss3"
+          ],
+          "columnsTo": [
+            "nim"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "online_vote_token_unique": {
+          "name": "online_vote_token_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.senator_candidate": {
+      "name": "senator_candidate",
+      "schema": "",
+      "columns": {
+        "nim": {
+          "name": "nim",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "senator_candidate_nim_unique": {
+          "name": "senator_candidate_nim_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "nim"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.voter": {
+      "name": "voter",
+      "schema": "",
+      "columns": {
+        "nim": {
+          "name": "nim",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vote_status": {
+          "name": "vote_status",
+          "type": "vote_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'inactive'"
+        },
+        "vote_type": {
+          "name": "vote_type",
+          "type": "vote_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'unregistered'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "voter_nim_unique": {
+          "name": "voter_nim_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "nim"
+          ]
+        },
+        "voter_token_unique": {
+          "name": "voter_token_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.accepted_status": {
+      "name": "accepted_status",
+      "schema": "public",
+      "values": [
+        "accepted",
+        "rejected",
+        "pending"
+      ]
+    },
+    "public.vote_status": {
+      "name": "vote_status",
+      "schema": "public",
+      "values": [
+        "inactive",
+        "active",
+        "used"
+      ]
+    },
+    "public.vote_type": {
+      "name": "vote_type",
+      "schema": "public",
+      "values": [
+        "unregistered",
+        "offline",
+        "online"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
