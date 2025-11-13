@@ -40,7 +40,7 @@ Berdasarkan spesifikasi, sistem ini harus memenuhi persyaratan fungsional kritis
 
 ### 🏛️ Arsitektur "Kotak Suara Terpisah"
 
-Ini adalah arsitektur wajib untuk memastikan anonimitas. **Logika GEA 2024 DITOLAK**.
+Ini adalah arsitektur wajib untuk memastikan anonimitas
 
 ```mermaid
 graph TD
@@ -72,3 +72,119 @@ graph TD
     style E fill:#1D222F,color:#fff
     style Q fill:#1D222F,color:#fff
 ```
+#### 1. Tabel `VoterRegistry` (DPT)
+* **Tujuan**: Hanya untuk memvalidasi siapa yang berhak memilih dan melacak status (sudah/belum).
+* **Kolom**:
+    * `email` (Kunci Primer, untuk SSO)
+    * `hashedToken` (Untuk login offline)
+    * `hasVoted` (Boolean, default: `false`)
+    * `isEligible` (Boolean)
+
+#### 2. Tabel `BallotBox` (Kotak Suara)
+* **Tujuan**: Menyimpan surat suara secara anonim.
+* > **PERHATIAN**: TIDAK BOLEH ada `email`, `token`, `userId`, atau *foreign key* apa pun ke `VoterRegistry` di tabel ini.
+* **Kolom**:
+    * `id` (Kunci Unik)
+    * `encryptedBallotData` (Data JSON suara terenkripsi)
+    * `timestamp`
+
+### 🗺️ Struktur Halaman (Pages)
+
+* **`/` (Landing Page)**: Halaman utama, visual Star Wars, tombol "Mulai Voting", kontak panitia.
+* **`/login` (Halaman Login)**: Pilihan antara "Login dengan Microsoft" (SSO) atau "Masukkan Token" (Offline).
+* **`/kandidat` (Galeri Kandidat)**: Halaman publik menampilkan profil (Visi, Misi, Foto) semua kandidat Ketua dan Senator.
+* **`/vote` (Halaman Voting)**: Halaman terproteksi. Menampilkan UI voting:
+    * *1 Calon*: Radio button (Kandidat A vs Kotak Kosong).
+    * *2+ Calon*: Antarmuka IRV (Drag-and-drop/dropdown) untuk Pilihan 1, 2, 3 (termasuk Kotak Kosong).
+* **`/selesai` (Halaman Sukses)**: Ditampilkan setelah suara berhasil dikirim.
+* **`/hasil` (Hasil Voting)**: Halaman publik yang hanya bisa diakses setelah voting ditutup oleh Admin.
+* **`/admin/dashboard` (Dasbor Admin)**: Halaman terproteksi (via NextAuth Role) untuk memantau, menutup, dan mempublikasikan hasil.
+
+### 🎨 Panduan GDV & Branding (Star Wars)
+<details>
+  <summary>Klik untuk melihat Color Palette dan Tipografi GDV 2025</summary>
+  
+  #### Aset Logo
+  * **Logo Acara**: `pemilu logo fix.jpg` (Header/Navbar)
+  * **Logo Institusi**: `hmtg-gea-itb.jpg` (Footer)
+
+  #### Color Palette
+  | Warna | Hex | Penggunaan |
+  | :--- | :--- | :--- |
+  | Krem (Latar Netral) | `#F5EAD9` | Latar belakang utama |
+  | Biru Sangat Tua | `#1D222F` | Latar belakang sekunder, footer |
+  | Hitam | `#201D20` | Teks utama, UI gelap |
+  | Abu-abu (Metalik) | `#848A9D` | Teks sekunder, border |
+  | Emas Pudar | `#D1A56E` | Tombol primer, aksen |
+  | Merah Tua (Sith) | `#951518` | Tombol "Pilih", aksen bahaya |
+  | Kuning (Lightsaber) | `#E3C45E` | Aksen terang |
+  | Biru Muda (R2-D2) | `#5D9FAF` | Aksen info |
+  | Oranye (X-Wing) | `#E16E4B` | Aksen |
+  | Hijau (Yoda) | `#6FC36D` | Aksen sukses |
+  | Cyan (Lightsaber) | `#2BCAE0` | Aksen |
+  | Ungu (Mace Windu) | `#A16DA8` | Aksen |
+
+  #### Tipografi
+  * **Judul Utama**: `DEATH STAR REGULAR` (Fallback: `Staatliches`, `Impact`, sans-serif)
+  * **Sub-Judul**: `HELVETICA BLACK ORIGINAL` (Fallback: `Arial Black`, `Helvetica`, sans-serif)
+  * **Body Text**: `Trade Gothic Bold #2` (Fallback: `Roboto Condensed`, `Arial Narrow`, sans-serif)
+  
+  *(Catatan: Font GDV mungkin berlisensi. Gunakan font web-safe atau Google Fonts yang paling mirip sebagai fallback).*
+</details>
+
+### 🚀 Menjalankan Proyek Secara Lokal
+Panduan ini untuk developer yang akan berkontribusi pada codebase ini.
+
+#### 1. Kebutuhan Aset (Wajib)
+Sebelum memulai, Anda harus mendapatkan aset berikut dari Panitia dan menyimpannya dalam file `.env.local`:
+
+```bash
+# Kredensial Database (Contoh: PostgreSQL)
+DATABASE_URL="postgresql://user:password@host:port/database"
+
+# Kunci Enkripsi (Wajib untuk BallotBox)
+# Hasilkan satu kunci rahasia (min. 32 karakter)
+BALLOT_ENCRYPTION_KEY="RAHASIA_ANDA_UNTUK_ENKRIPSI_SUARA"
+
+# Kredensial Microsoft SSO
+AZURE_AD_CLIENT_ID="CLIENT_ID_DARI_AZURE_PORTAL"
+AZURE_AD_CLIENT_SECRET="CLIENT_SECRET_DARI_AZURE_PORTAL"
+AZURE_AD_TENANT_ID="TENANT_ID_ANDA"
+
+# Kunci NextAuth
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="BUAT_KUNCI_RAHASIA_UNTUK_NEXTAUTH"
+```
+
+### 2. Instalasi
+Clone repositori ini:
+```bash
+git clone [https://github.com/](https://github.com/)[USERNAME]/[NAMA_REPO].git
+cd [NAMA_REPO]
+```
+Install dependensi:
+
+```bash
+npm install
+# atau
+yarn install
+# atau
+pnpm install
+```
+
+### 3. Migrasi Database
+Setelah `.env.local` terisi, jalankan migrasi database (jika menggunakan Prisma/Drizzle):
+
+```bash
+npx prisma migrate dev
+```
+
+#### 4. Menjalankan Server
+
+Jalankan server development:
+
+```bash
+npm run dev
+```
+
+Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
