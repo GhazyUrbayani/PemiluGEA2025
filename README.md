@@ -40,38 +40,6 @@ Berdasarkan spesifikasi, sistem ini harus memenuhi persyaratan fungsional kritis
 
 ### 🏛️ Arsitektur "Kotak Suara Terpisah"
 
-Ini adalah arsitektur wajib untuk memastikan anonimitas
-
-```
-graph TD
-    A[Pemilih] -->|Login via| B(Opsi Login);
-    B --> C{SSO (Email)};
-    B --> D{Token (Offline)};
-    
-    subgraph "Validasi Identitas"
-        C --> E[Cek VoterRegistry];
-        D --> F[Hash Token];
-        F --> E;
-        E -- Valid --> G[hasVoted == false?];
-        G -- Ya --> H(Izinkan Voting);
-        G -- Tidak --> I(Blokir: Sudah Memilih);
-        E -- Tidak Valid --> J(Blokir: Tidak Terdaftar);
-    end
-
-    subgraph "Proses Voting Anonim"
-        H --> K[Tampilkan Halaman /vote];
-        K --> L(Pemilih Mengisi Suara IRV);
-        L --> M[Submit Suara];
-        M --> N(Sistem Mengenkripsi Suara);
-        N --> O[Simpan ke BallotBox];
-        M --> P(Sistem Update hasVoted=true);
-        P --> Q[Update VoterRegistry];
-    end
-    
-    style O fill:#951518,color:#fff
-    style E fill:#1D222F,color:#fff
-    style Q fill:#1D222F,color:#fff
-```
 #### 1. Tabel `VoterRegistry` (DPT)
 * **Tujuan**: Hanya untuk memvalidasi siapa yang berhak memilih dan melacak status (sudah/belum).
 * **Kolom**:
