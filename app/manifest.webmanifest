@@ -1,0 +1,14 @@
+{
+  "name": "Pemilu GEA 2024",
+  "short_name": "Pemilu GEA 2024",
+  "start_url": "https://pemilu-gea-2024.vercel.app/",
+  "display": "browser",
+  "description": "Selamat datang di Website Resmi Pemilu HMTG \"GEA\" ITB 2024, tempat kamu bisa menemukan semua informasi terkait pemilihan ketua dan senator berikutnya! Temui para kandidat, pelajari visi dan misi mereka, dan jadilah bagian dari perjalanan demokrasi kampus yang seru.",
+  "icons": [
+    {
+      "src": "/icon.ico",
+      "sizes": "128x128",
+      "type": "image/x-icon"
+    }
+  ]
+}
