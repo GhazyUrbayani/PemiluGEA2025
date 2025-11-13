@@ -42,7 +42,7 @@ Berdasarkan spesifikasi, sistem ini harus memenuhi persyaratan fungsional kritis
 
 Ini adalah arsitektur wajib untuk memastikan anonimitas
 
-```mermaid
+```
 graph TD
     A[Pemilih] -->|Login via| B(Opsi Login);
     B --> C{SSO (Email)};
