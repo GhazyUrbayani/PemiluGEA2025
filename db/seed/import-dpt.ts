@@ -59,8 +59,8 @@ function parseCSV(filePath: string): DPTRow[] {
 
     rows.push({
       email: row.email,
-      nim: row.nim || null,
-      angkatan: row.angkatan ? parseInt(row.angkatan) : null,
+      nim: row.nim || undefined,
+      angkatan: row.angkatan ? parseInt(row.angkatan) : undefined,
     });
   }
 

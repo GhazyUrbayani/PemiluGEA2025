@@ -2,7 +2,7 @@ import nodemailer, { Transporter } from "nodemailer";
 // import dataEmailNone from "@/db/seed/data-email-none.json";
 
 import { config } from "dotenv";
-import { emailHTML } from "./html";
+// import { emailHTML } from "./html"; // Temporarily disabled
 
 config({ path: ".env.local" });
 
@@ -36,8 +36,8 @@ async function sendEmail(
       await transporter.sendMail({
         from: process.env.EMAIL_FROM,
         to: recipient,
-        subject: "Token Voting Pemilu GEA 2024",
-        html: emailHTML(token),
+        subject: "Token Voting Pemilu GEA 2025",
+        html: `<p>Your voting token: <strong>${token}</strong></p>`, // TODO: Use proper HTML template
       });
       console.log(`Email sent to: ${recipient}`);
       return;

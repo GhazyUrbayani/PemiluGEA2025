@@ -1,121 +1,83 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
-import { voters } from "@/db/schema";
+import { voterRegistry } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { tokenValidationSchema } from "@/zod/vote";
-import { isInvalidOfflineDate, isInvalidOnlineDate } from "@/lib/special-date";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 
-export async function POST(request: NextRequest) {
-  const reqFormData = await request.formData();
-  const data = Object.fromEntries(reqFormData.entries());
-
-  // Validate form data
-  const zodParseResult = tokenValidationSchema.safeParse(data);
-  if (!zodParseResult.success) {
-    return NextResponse.json(
-      {
-        error: "Bad Request",
-        message: zodParseResult.error.issues,
-      },
-      { status: 400 },
-    );
-  }
-
-  // Desctructure form data
-  const { token } = zodParseResult.data;
-
-  // Check if token exists
+export async function POST() {
   try {
-    const result = await db
-      .select()
-      .from(voters)
-      .where(eq(voters.token, token));
+    // Check authentication (session from NextAuth)
+    const session = await getServerSession(authOptions);
+    
+    if (!session || !session.user?.email) {
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+          message: "Anda harus login terlebih dahulu",
+        },
+        { status: 401 },
+      );
+    }
 
-    if (result.length === 0) {
+    const email = session.user.email;
+
+    // Check voter registry
+    const voter = await db
+      .select()
+      .from(voterRegistry)
+      .where(eq(voterRegistry.email, email))
+      .limit(1);
+
+    if (voter.length === 0) {
       return NextResponse.json(
         {
           error: "Not Found",
-          message: "Token tidak ditemukan",
+          message: "Email tidak terdaftar di DPT",
         },
         { status: 404 },
       );
     }
 
-    if (result[0].voteType === "unregistered") {
+    const voterData = voter[0];
+
+    // Check if eligible
+    if (!voterData.isEligible) {
       return NextResponse.json(
         {
           error: "Forbidden",
-          message: "Anda belum terdaftar untuk melakukan voting",
+          message: "Anda tidak memenuhi syarat untuk voting",
         },
         { status: 403 },
       );
     }
 
-    if (result[0].voteStatus === "inactive") {
+    // Check if already voted
+    if (voterData.hasVoted) {
       return NextResponse.json(
         {
           error: "Forbidden",
-          message: "Anda belum diizinkan untuk melakukan voting",
+          message: "Anda sudah melakukan voting sebelumnya",
         },
         { status: 403 },
       );
     }
 
-    if (result[0].voteStatus === "used") {
-      return NextResponse.json(
-        {
-          error: "Forbidden",
-          message: "Token sudah digunakan",
-        },
-        { status: 403 },
-      );
-    }
-
-    // Validate Date For Voting
-    const currentTime = Date.now();
-
-    if (result[0].voteType === "online") {
-      if (isInvalidOnlineDate(currentTime)) {
-        return NextResponse.json(
-          {
-            error: "Forbidden",
-            message: "Waktu voting invalid",
-          },
-          { status: 403 },
-        );
-      }
-
-      return NextResponse.json(
-        {
-          message: "Token found",
-        },
-        { status: 201 },
-      );
-    }
-
-    if (isInvalidOfflineDate(currentTime)) {
-      return NextResponse.json(
-        {
-          error: "Forbidden",
-          message: "Waktu voting invalid",
-        },
-        { status: 403 },
-      );
-    }
-
+    // All checks passed
     return NextResponse.json(
       {
-        message: "Token found",
+        success: true,
+        message: "Validasi berhasil, silakan lanjutkan voting",
       },
-      { status: 201 },
+      { status: 200 },
     );
   } catch (error) {
-    console.log(error);
+    console.error("Vote validation error:", error);
 
     return NextResponse.json(
       {
         error: "Internal Server Error",
-        message: "Failed to fetch token",
+        message: "Terjadi kesalahan saat validasi",
       },
       { status: 500 },
     );

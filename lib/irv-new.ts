@@ -68,7 +68,7 @@ export function runIRV(
 
   const rounds: IRVRound[] = [];
   let remainingCandidates = [...candidateIds]; // Kandidat yang masih berkompetisi
-  let activeBallots = ballots.map((ballot) => [...ballot]); // Copy ballots
+  const activeBallots = ballots.map((ballot) => [...ballot]); // Copy ballots
   let roundNumber = 1;
 
   while (remainingCandidates.length > 1) {
@@ -124,7 +124,7 @@ export function runIRV(
 
     // Tidak ada pemenang, eliminasi kandidat dengan suara terendah
     const candidatesWithVotes = Object.entries(votes)
-      .filter(([_, voteCount]) => voteCount >= 0)
+      .filter(([, voteCount]) => voteCount >= 0)
       .sort((a, b) => a[1] - b[1]); // Sort ascending by vote count
 
     if (candidatesWithVotes.length === 0) {
@@ -136,7 +136,7 @@ export function runIRV(
     
     // Cek apakah ada tie di posisi terendah
     const candidatesWithLowestVotes = candidatesWithVotes.filter(
-      ([_, voteCount]) => voteCount === lowestVoteCount
+      ([, voteCount]) => voteCount === lowestVoteCount
     );
 
     // Jika ada tie di posisi terendah, pilih salah satu secara deterministik (alphabetically)
@@ -194,7 +194,7 @@ export function runIRV(
  * @returns Hasil IRV untuk kedua posisi
  */
 export async function calculateElectionResults(
-  encryptedBallots: any[],
+  encryptedBallots: { encryptedBallotData: unknown }[],
   candidateIdsKahim: string[],
   candidateIdsSenator: string[]
 ) {
@@ -206,7 +206,7 @@ export async function calculateElectionResults(
   
   for (const encryptedBallot of encryptedBallots) {
     try {
-      const decrypted = decryptBallot(encryptedBallot.encryptedBallotData);
+      const decrypted = decryptBallot(encryptedBallot.encryptedBallotData as { encrypted: string; iv: string; authTag: string });
       decryptedBallots.push(decrypted);
     } catch (error) {
       console.error("Gagal dekripsi ballot:", error);

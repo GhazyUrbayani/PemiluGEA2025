@@ -8,13 +8,13 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const position = searchParams.get("position"); // 'kahim' or 'senator'
 
-    let query = db.select().from(candidates);
+    let data;
 
     if (position) {
-      query = query.where(eq(candidates.position, position)) as any;
+      data = await db.select().from(candidates).where(eq(candidates.position, position));
+    } else {
+      data = await db.select().from(candidates);
     }
-
-    const data = await query;
 
     return NextResponse.json({
       success: true,

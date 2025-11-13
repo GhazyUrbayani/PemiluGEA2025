@@ -15,8 +15,8 @@ import crypto from "crypto";
 // Algoritma enkripsi yang digunakan
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 16; // Initialization Vector length
-const AUTH_TAG_LENGTH = 16; // Authentication Tag length
-const SALT_LENGTH = 64; // Salt length untuk key derivation
+// const AUTH_TAG_LENGTH = 16; // Authentication Tag length (unused)
+// const SALT_LENGTH = 64; // Salt length untuk key derivation (unused)
 
 /**
  * Mendapatkan kunci enkripsi dari environment variable

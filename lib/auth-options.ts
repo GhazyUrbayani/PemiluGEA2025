@@ -66,6 +66,8 @@ export const authOptions: AuthOptions = {
           email: existingAdmin.email,
           name: existingAdmin.name,
           role: existingAdmin.role,
+          password: existingAdmin.password,
+          createdAt: existingAdmin.createdAt,
         };
       },
     }),
@@ -129,7 +131,7 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.email = user.email;
         token.name = user.name;
-        token.role = (user as any).role || "voter";
+        token.role = (user as { role?: string }).role || "voter";
       }
 
       // Untuk Azure AD, simpan email dari profile
