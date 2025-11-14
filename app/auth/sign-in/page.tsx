@@ -29,7 +29,7 @@ function Page() {
             height={200}
             className="mx-auto mb-6"
           />
-          <h1 className="text-3xl font-bold text-yellow-600">Login untuk Memilih</h1>
+          <h2 className="text-3xl font-bold text-yellow-600">Login untuk Memilih</h2>
           <p className="mt-2 text-sm text-yellow-400">
             Pilih metode login sesuai dengan status Anda
           </p>
