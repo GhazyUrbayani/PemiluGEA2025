@@ -35,7 +35,7 @@ export default function KandidatPage() {
         return;
       }
       
-      // Fallback ke REAL DATA kandidat jika API gagal
+
       const dummyData: Candidate[] = [
         {
           id: "12023026",
@@ -65,7 +65,6 @@ export default function KandidatPage() {
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching candidates:", error);
-      // Tetap tampilkan dummy data jika error
       setIsLoading(false);
     }
   };
@@ -102,29 +101,32 @@ export default function KandidatPage() {
           </p>
         </div>
 
-        {/* Ketua Umum BPH */}
-        <section className="mb-16">
-          <h2 className="mb-8 font-death-star text-3xl text-r2d2-blue">
-            Calon Ketua Umum BPH
-          </h2>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {kahimCandidates.map((candidate) => (
-              <CandidateCard key={candidate.id} {...candidate} />
-            ))}
-          </div>
-        </section>
+        {/* Side by Side Layout */}
+        <div className="grid gap-12 lg:grid-cols-2">
+          {/* Ketua Umum BPH */}
+          <section>
+            <h2 className="mb-8 font-death-star text-3xl text-r2d2-blue">
+              Calon Ketua Umum BPH
+            </h2>
+            <div className="flex flex-col gap-8">
+              {kahimCandidates.map((candidate) => (
+                <CandidateCard key={candidate.id} {...candidate} />
+              ))}
+            </div>
+          </section>
 
-        {/* Senator */}
-        <section>
-          <h2 className="mb-8 font-death-star text-3xl text-yoda-green">
-            Calon Senator
-          </h2>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {senatorCandidates.map((candidate) => (
-              <CandidateCard key={candidate.id} {...candidate} />
-            ))}
-          </div>
-        </section>
+          {/* Senator */}
+          <section>
+            <h2 className="mb-8 font-death-star text-3xl text-yoda-green">
+              Calon Senator
+            </h2>
+            <div className="flex flex-col gap-8">
+              {senatorCandidates.map((candidate) => (
+                <CandidateCard key={candidate.id} {...candidate} />
+              ))}
+            </div>
+          </section>
+        </div>
       </div>
     </main>
   );
