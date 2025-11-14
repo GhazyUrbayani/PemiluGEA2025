@@ -15,7 +15,6 @@ function BodyLayout({ children }: { children: React.ReactNode }) {
         {children}
         <Toaster />
         
-        {/* Footer - Star Wars Theme */}
         <footer className="mt-auto border-t border-metallic-gray bg-vader-black p-8 text-center">
           <div className="container mx-auto">
             {/* Logo GEA ITB */}
@@ -37,16 +36,6 @@ function BodyLayout({ children }: { children: React.ReactNode }) {
               PEMILU GEA 2025 - Star Wars Edition
             </p>
             
-            <div className="mt-6 text-xs text-sand-gold">
-              <p className="font-helvetica-black mb-2">Kontak Panitia PEMILU GEA 2025</p>
-              <p className="text-metallic-gray">
-                WA: <span className="text-neutral-cream">[Nomor WA]</span> |{" "}
-                Line: <span className="text-neutral-cream">[Line ID]</span> |{" "}
-                Email: <span className="text-neutral-cream">[Email Panitia]</span>
-              </p>
-            </div>
-
-            {/* May the Force */}
             <p className="mt-6 font-death-star text-lg text-cyan-saber">
               May the Force Be With You
             </p>

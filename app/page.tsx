@@ -118,16 +118,38 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Info Kontak */}
+          {/* Info Kontak - Clickable */}
           <div className="mt-8 rounded-lg border border-metallic-gray bg-vader-black/60 p-6 shadow-lg backdrop-blur-sm">
             <p className="font-helvetica-black text-base text-neutral-cream md:text-lg">
               <strong className="text-lightsaber-yellow">Kontak Panitia:</strong>
             </p>
-            <p className="mt-2 text-sm text-sand-gold">
-              WA: <span className="text-neutral-cream">[Nomor WA]</span> |{" "}
-              Line: <span className="text-neutral-cream">[Line ID]</span> |{" "}
-              Email: <span className="text-neutral-cream">[Email Panitia]</span>
-            </p>
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-4 text-sm">
+              <a
+                href="https://wa.me/6281315763302"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-lg border border-yoda-green px-4 py-2 text-yoda-green transition-all hover:bg-yoda-green hover:text-vader-black"
+              >
+                <span className="font-bold">WA:</span>
+                <span>0813-1576-3302</span>
+              </a>
+              <a
+                href="https://line.me/ti/p/~tarsisiusgin05"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-lg border border-cyan-saber px-4 py-2 text-cyan-saber transition-all hover:bg-cyan-saber hover:text-vader-black"
+              >
+                <span className="font-bold">Line:</span>
+                <span>tarsisiusgin05</span>
+              </a>
+              <a
+                href="mailto:geapemilu@gmail.com"
+                className="flex items-center gap-2 rounded-lg border border-xwing-orange px-4 py-2 text-xwing-orange transition-all hover:bg-xwing-orange hover:text-vader-black"
+              >
+                <span className="font-bold">Email:</span>
+                <span>geapemilu@gmail.com</span>
+              </a>
+            </div>
           </div>
         </div>
       </section>
