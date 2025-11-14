@@ -5,9 +5,6 @@ import { useRouter } from "next/navigation";
 import VoteForm from "./vote-form";
 import { toast } from "sonner";
 
-// DUMMY TOKEN HARDCODE - HAPUS NANTI!
-const DUMMY_TOKEN = "TESTTOKEN123";
-
 function Page() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,27 +17,49 @@ function Page() {
 
   const checkAuth = async () => {
     try {
-      // Check session from cookie or NextAuth
+      // Check NextAuth session (Azure AD)
       const response = await fetch("/api/auth/session");
       const session = await response.json();
 
-      if (session?.user) {
-        setIsAuthenticated(true);
-      } else {
-        // Check if there's a voter-session cookie (for token login)
-        const voterSession = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("voter-session="));
+      if (session?.user?.email) {
+        // User logged in via Azure AD - check if eligible voter
+        const validationResponse = await fetch("/api/vote/validation", {
+          method: "POST",
+        });
         
-        if (voterSession) {
-          // Has voter session from token login
+        if (validationResponse.ok) {
           setIsAuthenticated(true);
+          return;
         } else {
-          // No session, redirect to login
-          toast.error("Silakan login terlebih dahulu");
-          router.push("/auth/sign-in");
+          const errorData = await validationResponse.json();
+          toast.error(errorData.message || "Anda tidak terdaftar di DPT");
+          router.push("/");
+          return;
         }
       }
+
+      // Check offline token session
+      const voterSession = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("voter-session="));
+      
+      if (voterSession) {
+        // Verify token with backend
+        const tokenValidation = await fetch("/api/auth/login-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: voterSession.split("=")[1] }),
+        });
+
+        if (tokenValidation.ok) {
+          setIsAuthenticated(true);
+          return;
+        }
+      }
+
+      // No valid session
+      toast.error("Silakan login terlebih dahulu untuk melakukan voting");
+      router.push("/auth/sign-in");
     } catch (error) {
       console.error("Auth check error:", error);
       toast.error("Gagal memeriksa autentikasi");
@@ -67,15 +86,6 @@ function Page() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-space-dark to-vader-black py-16">
-      {/* DUMMY TOKEN WARNING - HAPUS NANTI */}
-      <div className="container mx-auto mb-4 max-w-4xl">
-        <div className="rounded-lg border-2 border-sith-red bg-sith-red/20 p-4 text-center">
-          <p className="text-sm text-neutral-cream">
-            <strong className="text-sith-red">⚠️ DEVELOPMENT MODE:</strong> Using dummy token: <code className="bg-vader-black px-2 py-1">{DUMMY_TOKEN}</code>
-          </p>
-          <p className="text-xs text-sand-gold">Hapus bagian ini setelah implementasi selesai!</p>
-        </div>
-      </div>
       <VoteForm />
     </main>
   );

@@ -1,11 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock } from "lucide-react";
+import { Lock, Shield } from "lucide-react";
+import { toast } from "sonner";
 
 export default function HasilPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [isVotingClosed] = useState(false); // TODO: Check dari API apakah voting sudah ditutup
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  useEffect(() => {
+    if (status === "loading") return;
+    
+    if (!session) {
+      toast.error("Anda harus login sebagai admin untuk melihat hasil");
+      router.push("/auth/sign-in");
+      return;
+    }
+
+    // Check if user is admin
+    if (session.user?.role !== "admin") {
+      toast.error("Akses ditolak. Halaman ini hanya untuk panitia.");
+      router.push("/");
+      return;
+    }
+
+    setIsAuthorized(true);
+  }, [session, status, router]);
+
+  if (status === "loading" || !isAuthorized) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-space-dark to-vader-black">
+        <div className="text-center">
+          <Shield className="mx-auto h-16 w-16 animate-pulse text-mace-purple" />
+          <p className="mt-4 text-neutral-cream">Memverifikasi akses...</p>
+        </div>
+      </main>
+    );
+  }
 
   if (!isVotingClosed) {
     return (

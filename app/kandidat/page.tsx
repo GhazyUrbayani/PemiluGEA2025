@@ -26,11 +26,16 @@ export default function KandidatPage() {
 
   const fetchCandidates = async () => {
     try {
-      // TODO: Ganti dengan fetch real dari API
-      // const response = await fetch("/api/candidates");
-      // const data = await response.json();
+      const response = await fetch("/api/candidates");
+      const data = await response.json();
       
-      // DUMMY DATA sementara
+      if (data.candidates && Array.isArray(data.candidates)) {
+        setCandidates(data.candidates);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Fallback ke DUMMY DATA jika API gagal
       const dummyData: Candidate[] = [
         {
           id: "kahim_1",
@@ -104,6 +109,7 @@ export default function KandidatPage() {
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching candidates:", error);
+      // Tetap tampilkan dummy data jika error
       setIsLoading(false);
     }
   };
