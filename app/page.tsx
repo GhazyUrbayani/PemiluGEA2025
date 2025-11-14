@@ -13,7 +13,7 @@ export default function Home() {
   });
 
   // Countdown timer to voting day (adjust this date!)
-  const votingDate = new Date("2025-12-15T00:00:00").getTime();
+  const votingDate = new Date("2025-12-03T09:00:00").getTime();
 
   useEffect(() => {
     const interval = setInterval(() => {
