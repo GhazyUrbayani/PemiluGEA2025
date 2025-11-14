@@ -143,7 +143,9 @@ export default function Home() {
                 <span>tarsisiusgin05</span>
               </a>
               <a
-                href="mailto:geapemilu@gmail.com"
+                href="mailto:geapemilu@gmail.com?subject=Pertanyaan%20PEMILU%20GEA%202025"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-2 rounded-lg border border-xwing-orange px-4 py-2 text-xwing-orange transition-all hover:bg-xwing-orange hover:text-vader-black"
               >
                 <span className="font-bold">Email:</span>
