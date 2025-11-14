@@ -70,9 +70,10 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        "death-star": "var(--font-death-star)", // Judul Utama
-        "helvetica-black": "var(--font-helvetica-black)", // Sub-Judul
-        "trade-gothic": "var(--font-trade-gothic)", // Body Text
+        "death-star": "var(--font-death-star)", // 1. DEATH STAR REGULAR - Judul Utama (H1)
+        "helvetica-black": "var(--font-helvetica-black)", // 2. HELVETICA BLACK ORIGINAL - Sub-Judul (H2)
+        "atures": "var(--font-atures)", // 3. Atures 900 - Heading Alternatif (H3)
+        "trade-gothic": "var(--font-trade-gothic)", // 4. Trade Gothic Bold #2 - Body Text & Button
       },
     },
   },

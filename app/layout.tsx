@@ -4,14 +4,14 @@ import { Inter, Archivo_Black } from "next/font/google";
 import { cn } from "@/lib/utils";
 import BodyLayout from "./body-layout";
 
-// Death Star Regular alternative - using Big Campus for now
+// 1. DEATH STAR REGULAR - Judul Utama (H1)
 const deathStarFont = localFont({
   src: "./fonts/Big-Campus.ttf",
   variable: "--font-death-star",
   weight: "400",
 });
 
-// Helvetica Black alternative - using Archivo Black from Google Fonts
+// 2. HELVETICA BLACK ORIGINAL - Sub-Judul (H2)
 const helveticaBlack = Archivo_Black({
   variable: "--font-helvetica-black",
   weight: "400",
@@ -19,7 +19,15 @@ const helveticaBlack = Archivo_Black({
   display: "swap",
 });
 
-// Trade Gothic Bold alternative - using Inter Bold
+// 3. Atures 900 - Heading Alternatif (H3)
+const atures900 = Inter({
+  variable: "--font-atures",
+  weight: ["900"],
+  subsets: ["latin"],
+  display: "swap",
+});
+
+// 4. Trade Gothic Bold #2 - Body Text & Button
 const tradeGothic = Inter({
   variable: "--font-trade-gothic",
   weight: ["400", "600", "700", "800"],
@@ -66,6 +74,7 @@ export default function RootLayout({
       className={cn(
         deathStarFont.variable,
         helveticaBlack.variable,
+        atures900.variable,
         tradeGothic.variable,
       )}
     >
