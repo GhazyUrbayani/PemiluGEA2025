@@ -4,14 +4,12 @@ import { Inter, Archivo_Black } from "next/font/google";
 import { cn } from "@/lib/utils";
 import BodyLayout from "./body-layout";
 
-// 1. DEATH STAR REGULAR - Judul Utama (H1)
 const deathStarFont = localFont({
-  src: "./fonts/Big-Campus.ttf",
+  src: "./fonts/Death-Star.ttf",
   variable: "--font-death-star",
   weight: "400",
 });
 
-// 2. HELVETICA BLACK ORIGINAL - Sub-Judul (H2)
 const helveticaBlack = Archivo_Black({
   variable: "--font-helvetica-black",
   weight: "400",
@@ -19,7 +17,6 @@ const helveticaBlack = Archivo_Black({
   display: "swap",
 });
 
-// 3. Atures 900 - Heading Alternatif (H3)
 const atures900 = Inter({
   variable: "--font-atures",
   weight: ["900"],
@@ -27,7 +24,6 @@ const atures900 = Inter({
   display: "swap",
 });
 
-// 4. Trade Gothic Bold #2 - Body Text & Button
 const tradeGothic = Inter({
   variable: "--font-trade-gothic",
   weight: ["400", "600", "700", "800"],
@@ -35,9 +31,8 @@ const tradeGothic = Inter({
   display: "swap",
 });
 
-// Shared viewport config
 export const viewport: Viewport = {
-  themeColor: "#951518", // Sith Red - Star Wars Theme 2025
+  themeColor: "#951518",
   colorScheme: "dark",
 };
 
