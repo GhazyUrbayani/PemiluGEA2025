@@ -23,14 +23,14 @@ function Page() {
         {/* Logo */}
         <div className="text-center">
           <Image
-            src="/logos/logo-pemilu-gea-2025.svg"
+            src="/logos/pemilu logo fix.png"
             alt="PEMILU GEA 2025 Logo"
             width={200}
             height={200}
             className="mx-auto mb-6"
           />
-          <h1 className="text-3xl font-bold text-gray-800">Login untuk Memilih</h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <h1 className="text-3xl font-bold text-yellow-600">Login untuk Memilih</h1>
+          <p className="mt-2 text-sm text-yellow-400">
             Pilih metode login sesuai dengan status Anda
           </p>
         </div>
