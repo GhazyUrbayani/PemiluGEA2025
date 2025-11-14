@@ -19,7 +19,7 @@ function BodyLayout({ children }: { children: React.ReactNode }) {
           <div className="container mx-auto">
             {/* Logo GEA ITB */}
             <Image
-              src="/images/logos/hmtg-gea-itb.jpg"
+              src="/logos/hmtg-gea-itb.jpg"
               alt="HMTG GEA ITB Logo"
               width={80}
               height={80}

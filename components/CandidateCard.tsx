@@ -10,7 +10,7 @@ interface CandidateCardProps {
   vision: string;
   mission: string;
   hashtag?: string;
-  position: "kahim" | "senator";
+  NIM: number;
 }
 
 export default function CandidateCard({
@@ -21,7 +21,7 @@ export default function CandidateCard({
   vision,
   mission,
   hashtag,
-  position,
+  NIM,
 }: CandidateCardProps) {
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-2xl">
@@ -48,7 +48,7 @@ export default function CandidateCard({
             {major} &apos;{String(batch).slice(-2)}
           </p>
           <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-gea-blue">
-            {position === "kahim" ? "Calon Ketua Umum BPH" : "Calon Senator"}
+            {NIM}
           </p>
         </div>
 

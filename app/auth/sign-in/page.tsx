@@ -23,7 +23,7 @@ function Page() {
         {/* Logo */}
         <div className="text-center">
           <Image
-            src="/images/logos/logo-pemilu-gea-2025.svg"
+            src="/logos/logo-pemilu-gea-2025.svg"
             alt="PEMILU GEA 2025 Logo"
             width={200}
             height={200}

@@ -78,7 +78,7 @@ function SignInForm() {
       <div className="flex items-center justify-between">
         <p className="text-3xl font-bold">Login</p>
         <Image
-          src="/images/logos/hmtg-gea-itb.jpg"
+          src="/logos/hmtg-gea-itb.jpg"
           alt="GEA"
           width={895}
           height={603}

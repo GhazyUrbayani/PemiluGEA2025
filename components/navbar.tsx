@@ -30,7 +30,7 @@ function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/images/logos/pemilu logo fix.jpg"
+            src="/logos/pemilu logo fix.jpg"
             alt="PEMILU GEA 2025"
             width={60}
             height={60}

@@ -51,7 +51,7 @@ export default function Home() {
           {/* Logo PEMILU GEA 2025 */}
           <div className="relative">
             <Image
-              src="/images/logos/pemilu logo fix.png"
+              src="/logos/pemilu logo fix.png"
               alt="PEMILU GEA 2025 Logo"
               width={400}
               height={400}

@@ -87,7 +87,7 @@ export default function HybridLoginForm() {
           className="w-full bg-blue-600 py-6 text-base hover:bg-blue-700"
         >
           <Image
-            src="/images/microsoft-logo.svg"
+            src="/microsoft-logo.svg"
             alt="Microsoft"
             width={20}
             height={20}
