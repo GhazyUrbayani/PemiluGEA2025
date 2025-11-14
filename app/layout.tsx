@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import BodyLayout from "./body-layout";
 
 const deathStarFont = localFont({
-  src: "./fonts/Death-Star.ttf",
+  src: "./fonts/Death-Star.otf",
   variable: "--font-death-star",
   weight: "400",
 });
