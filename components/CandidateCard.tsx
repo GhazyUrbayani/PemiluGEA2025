@@ -60,7 +60,7 @@ export default function CandidateCard({
           </div>
 
           <div>
-            <h4 className="mb-2 text-sm font-bold uppercase tracking-wide text-pemilu-primary">
+            <h4 className="mb-2 text-sm font-bold uppercase tracking-wide text-pemilu-primary whitespace-pre-line">
               Misi
             </h4>
             <p className="text-sm leading-relaxed text-gray-700">{mission}</p>
