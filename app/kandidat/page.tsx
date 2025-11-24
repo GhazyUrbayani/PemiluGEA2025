@@ -40,7 +40,7 @@ export default function KandidatPage() {
         {
           id: "12023026",
           name: "Geraldus Yudhistira Davin",
-          photoUrl: "/candidates/kahim/geraldus-yudhistira-davin.jpg",
+          photoUrl: "/Davin.png",
           major: "Teknik Geologi",
           batch: 2023,
           vision: "Mewujudkan GEA yang inklusif, inovatif, dan berdampak bagi mahasiswa Teknik Geologi ITB",
@@ -51,7 +51,7 @@ export default function KandidatPage() {
         {
           id: "12023075",
           name: "Albert Kamaruddin",
-          photoUrl: "/candidates/senator/albert-kamaruddin.jpg",
+          photoUrl: "/Albert.png",
           major: "Teknik Geologi",
           batch: 2023,
           vision: "Menjadi jembatan aspirasi mahasiswa Teknik Geologi di tingkat institut",

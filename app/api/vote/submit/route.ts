@@ -101,23 +101,44 @@ export async function POST(req: NextRequest) {
         castAt: new Date(),
       });
 
-      // Update voter registry
+      // Update voter registry - mark as voted and invalidate token
       await tx
         .update(voterRegistry)
         .set({
           hasVoted: true,
+          tokenHash: null, // Invalidate token so it can't be reused
           updatedAt: new Date(),
         })
         .where(eq(voterRegistry.email, voterEmail));
     });
 
-    return NextResponse.json(
+    // Create response with cleared cookies
+    const response = NextResponse.json(
       {
         success: true,
         message: "Suara berhasil dicatat",
       },
       { status: 200 }
     );
+
+    // Clear session cookies to invalidate the session
+    response.cookies.set("voter-session", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 0, // Expire immediately
+      path: "/",
+    });
+
+    response.cookies.set("vote-method", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 0, // Expire immediately
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Vote submission error:", error);
     return NextResponse.json(

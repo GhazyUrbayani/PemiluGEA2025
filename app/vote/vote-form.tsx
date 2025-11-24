@@ -10,39 +10,90 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface Candidate {
   id: string;
   name: string;
   photoUrl: string;
   position: "kahim" | "senator";
+  major?: string;
+  batch?: number;
+  vision?: string;
+  mission?: string;
+  hashtag?: string;
 }
 
-// Komponen Sortable Item
-function SortableItem({ id, name, index }: { id: string; name: string; index: number }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+// Komponen Sortable Item with Card
+function SortableItem({ candidate, index }: { candidate: Candidate; index: number }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: candidate.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.8 : 1,
   };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="mb-2 flex items-center gap-3 rounded-lg border-2 border-metallic-gray bg-vader-black/60 p-4 backdrop-blur-sm"
+      className="mb-4"
     >
-      <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-        <GripVertical className="h-6 w-6 text-sand-gold" />
-      </button>
-      <div className="flex flex-1 items-center justify-between">
-        <span className="text-neutral-cream">{name}</span>
-        <span className="rounded-full bg-lightsaber-yellow px-3 py-1 text-sm font-bold text-vader-black">
+      <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-2xl">
+        <div className="absolute right-2 top-2 z-10 rounded-full bg-lightsaber-yellow px-4 py-2 text-sm font-bold text-vader-black shadow-lg">
           Pilihan #{index + 1}
-        </span>
-      </div>
+        </div>
+        <div className="absolute left-2 top-2 z-10" {...attributes} {...listeners}>
+          <button className="cursor-grab rounded-lg bg-vader-black/80 p-2 backdrop-blur-sm hover:bg-vader-black active:cursor-grabbing">
+            <GripVertical className="h-6 w-6 text-sand-gold" />
+          </button>
+        </div>
+        <CardHeader className="relative h-48 overflow-hidden bg-gradient-to-br from-pemilu-primary to-gea-yellow p-0">
+          <Image
+            src={candidate.photoUrl}
+            alt={`Foto ${candidate.name}`}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-110"
+          />
+          {candidate.hashtag && (
+            <div className="absolute bottom-4 right-4 rounded-full bg-gea-blue/80 px-4 py-2 backdrop-blur-sm">
+              <p className="text-sm font-bold text-gea-yellow">{candidate.hashtag}</p>
+            </div>
+          )}
+        </CardHeader>
+
+        <CardContent className="space-y-3 p-4">
+          <div className="text-center">
+            <CardTitle className="text-xl font-bold text-gray-800">
+              {candidate.name}
+            </CardTitle>
+            {candidate.major && candidate.batch && (
+              <p className="text-sm text-gray-600">
+                {candidate.major} &apos;{String(candidate.batch).slice(-2)}
+              </p>
+            )}
+          </div>
+
+          {candidate.vision && (
+            <div>
+              <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary">
+                Visi
+              </h4>
+              <p className="text-xs leading-relaxed text-gray-700">{candidate.vision}</p>
+            </div>
+          )}
+
+          {candidate.mission && (
+            <div>
+              <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary">
+                Misi
+              </h4>
+              <p className="text-xs leading-relaxed text-gray-700">{candidate.mission}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -69,31 +120,62 @@ export default function VoteForm() {
       const response = await fetch("/api/candidates");
       const result = await response.json();
 
-      if (result.success) {
-        const kahim = result.data.filter((c: Candidate) => c.position === "kahim");
-        const senator = result.data.filter((c: Candidate) => c.position === "senator");
+      let kahim: Candidate[] = [];
+      let senator: Candidate[] = [];
 
-        // Add Kotak Kosong
-        kahim.push({
-          id: "KOTAK_KOSONG_KAHIM",
-          name: "Kotak Kosong",
-          photoUrl: "/candidates/kotak-kosong.png",
-          position: "kahim",
-        });
-        senator.push({
-          id: "KOTAK_KOSONG_SENATOR",
-          name: "Kotak Kosong",
-          photoUrl: "/candidates/kotak-kosong.png",
-          position: "senator",
-        });
-
-        setKahimCandidates(kahim);
-        setSenatorCandidates(senator);
-
-        // Initialize rankings
-        setKahimRanking(kahim.map((c: Candidate) => c.id));
-        setSenatorRanking(senator.map((c: Candidate) => c.id));
+      if (result.success && result.data) {
+        kahim = result.data.filter((c: Candidate) => c.position === "kahim");
+        senator = result.data.filter((c: Candidate) => c.position === "senator");
+      } else {
+        // Fallback dummy data if API fails
+        kahim = [
+          {
+            id: "12023026",
+            name: "Geraldus Yudhistira Davin",
+            photoUrl: "/Davin.png",
+            major: "Teknik Geologi",
+            batch: 2023,
+            vision: "Mewujudkan GEA yang inklusif, inovatif, dan berdampak bagi mahasiswa Teknik Geologi ITB",
+            mission: "1. Meningkatkan partisipasi aktif anggota dalam kegiatan himpunan\n2. Memperkuat sinergi dengan alumni dan industri\n3. Mengembangkan program pengembangan soft skill dan hard skill",
+            hashtag: "#GerakBersama",
+            position: "kahim",
+          },
+        ];
+        senator = [
+          {
+            id: "12023075",
+            name: "Albert Kamaruddin",
+            photoUrl: "/Albert.png",
+            major: "Teknik Geologi",
+            batch: 2023,
+            vision: "Menjadi jembatan aspirasi mahasiswa Teknik Geologi di tingkat institut",
+            mission: "1. Menyampaikan aspirasi mahasiswa ke KM ITB\n2. Memperjuangkan kebijakan yang pro-mahasiswa\n3. Transparansi penuh dalam setiap keputusan",
+            hashtag: "#SuaraKita",
+            position: "senator",
+          },
+        ];
       }
+
+      // Add Kotak Kosong
+      kahim.push({
+        id: "KOTAK_KOSONG_KAHIM",
+        name: "Kotak Kosong",
+        photoUrl: "/logos/pemilu logo fix.png",
+        position: "kahim",
+      });
+      senator.push({
+        id: "KOTAK_KOSONG_SENATOR",
+        name: "Kotak Kosong",
+        photoUrl: "/logos/pemilu logo fix.png",
+        position: "senator",
+      });
+
+      setKahimCandidates(kahim);
+      setSenatorCandidates(senator);
+
+      // Initialize rankings
+      setKahimRanking(kahim.map((c: Candidate) => c.id));
+      setSenatorRanking(senator.map((c: Candidate) => c.id));
     } catch (error) {
       console.error("Error fetching candidates:", error);
       toast.error("Gagal memuat data kandidat");
@@ -214,7 +296,7 @@ export default function VoteForm() {
               {kahimRanking.map((id, index) => {
                 const candidate = kahimCandidates.find(c => c.id === id);
                 return candidate ? (
-                  <SortableItem key={id} id={id} name={candidate.name} index={index} />
+                  <SortableItem key={id} candidate={candidate} index={index} />
                 ) : null;
               })}
             </SortableContext>
@@ -238,7 +320,7 @@ export default function VoteForm() {
               {senatorRanking.map((id, index) => {
                 const candidate = senatorCandidates.find(c => c.id === id);
                 return candidate ? (
-                  <SortableItem key={id} id={id} name={candidate.name} index={index} />
+                  <SortableItem key={id} candidate={candidate} index={index} />
                 ) : null;
               })}
             </SortableContext>
