@@ -1,13 +1,13 @@
 import * as schema from "./schema";
-// import { neonConfig, Pool } from "@neondatabase/serverless";
-import { Pool } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-serverless";
-// import ws from "ws";
-
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { config } from "dotenv";
 
 config({ path: ".env.local" });
 
-// neonConfig.webSocketConstructor = ws;
-const pool = new Pool({ connectionString: process.env.DATABASE_URL! });
-export const db = drizzle(pool, { schema });
+// Supabase connection
+const connectionString = process.env.DATABASE_URL!;
+
+// For queries
+const client = postgres(connectionString, { prepare: false });
+export const db = drizzle(client, { schema });

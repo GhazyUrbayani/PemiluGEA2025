@@ -145,7 +145,7 @@ Berikut adalah token voting Anda untuk PEMILU GEA 2025:
 TOKEN: ${token}
 
 Cara Menggunakan:
-1. Kunjungi: https://pemilu-gea-2025.vercel.app/auth/sign-in
+1. Kunjungi Tempat Voting atau Hubungi Panitia
 2. Pilih tab "Login dengan Token"
 3. Paste token di atas
 4. Klik "Login" untuk mulai voting
@@ -153,7 +153,7 @@ Cara Menggunakan:
 PENTING:
 - Token hanya dapat digunakan SATU KALI
 - Jangan bagikan token kepada orang lain
-- Voting ditutup: 3 Desember 2025, 09:00 WIB
+- Voting ditutup: 5 Desember 2025
 
 Terima kasih atas partisipasi Anda!
 

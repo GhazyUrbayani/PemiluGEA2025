@@ -3,6 +3,7 @@
 ## 🚀 Deploy ke Vercel
 
 ### Prerequisites
+
 - [x] Repository sudah di GitHub
 - [x] Akun Vercel terhubung dengan GitHub
 - [x] Database PostgreSQL (Neon) sudah setup
@@ -35,6 +36,7 @@ git push origin main
 
 1. **Login ke Vercel**: https://vercel.com/dashboard
 2. **Import Project**:
+
    - Click "Add New" → "Project"
    - Select repository: `GhazyUrbayani/PemiluGEA2025`
    - Click "Import"
@@ -56,24 +58,29 @@ git push origin main
 **Add berikut ini satu-per-satu:**
 
 #### Database
+
 ```env
 DATABASE_URL=postgresql://user:password@host/database?sslmode=require
 ```
-*(Copy dari Neon dashboard)*
+
+_(Copy dari Neon dashboard)_
 
 #### NextAuth
+
 ```env
 NEXTAUTH_SECRET=<generate-dengan-openssl-rand-base64-32>
 NEXTAUTH_URL=https://your-domain.vercel.app
 ```
 
 **Generate NEXTAUTH_SECRET**:
+
 ```bash
 # Run di local terminal
 openssl rand -base64 32
 ```
 
 #### Azure AD (Microsoft Login)
+
 ```env
 AZURE_AD_CLIENT_ID=<dari-azure-portal>
 AZURE_AD_CLIENT_SECRET=<dari-azure-portal>
@@ -81,6 +88,7 @@ AZURE_AD_TENANT_ID=common
 ```
 
 **Setup Azure AD Redirect URI**:
+
 1. Buka Azure Portal → App Registrations
 2. Select your app
 3. Go to "Authentication"
@@ -88,17 +96,20 @@ AZURE_AD_TENANT_ID=common
 5. Save
 
 #### Encryption
+
 ```env
 VOTE_ENCRYPTION_KEY=<generate-dengan-crypto>
 ```
 
 **Generate VOTE_ENCRYPTION_KEY**:
+
 ```bash
 # Run di local terminal
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 #### Email (Gmail)
+
 ```env
 EMAIL=geapemilu@gmail.com
 EMAIL_PASSWORD=<app-password-16-char>
@@ -106,6 +117,7 @@ EMAIL_FROM=geapemilu@gmail.com
 ```
 
 **Generate Gmail App Password**:
+
 1. https://myaccount.google.com/apppasswords
 2. Select: Mail → Other (Custom name) → "PEMILU GEA 2025"
 3. Copy 16-character password
@@ -117,6 +129,7 @@ EMAIL_FROM=geapemilu@gmail.com
 Click **"Deploy"** di Vercel Dashboard
 
 Vercel akan:
+
 - ✅ Clone repository
 - ✅ Install dependencies
 - ✅ Run build command
@@ -136,6 +149,7 @@ DATABASE_URL="postgresql://production-url" npm run db:push
 ```
 
 **Seed candidates:**
+
 ```bash
 DATABASE_URL="postgresql://production-url" npx tsx db/seed/seed-candidates.ts
 ```
@@ -167,12 +181,14 @@ DATABASE_URL="postgresql://production-url" npx tsx db/seed/import-dpt.ts dpt-202
 ### 7. Test Production Deployment
 
 1. **Test Login Microsoft**:
+
    - Go to: `https://your-domain.vercel.app/auth/sign-in`
    - Click "Login dengan Microsoft"
    - Login with @students.itb.ac.id
    - Should redirect to `/vote`
 
 2. **Test Token Login**:
+
    - Get token from `tokens-output-*.txt`
    - Go to: `https://your-domain.vercel.app/auth/sign-in`
    - Enter token
@@ -180,6 +196,7 @@ DATABASE_URL="postgresql://production-url" npx tsx db/seed/import-dpt.ts dpt-202
    - Should redirect to `/vote`
 
 3. **Test Voting**:
+
    - Select Kahim candidate
    - Select Senator candidate
    - Submit vote
@@ -195,26 +212,31 @@ DATABASE_URL="postgresql://production-url" npx tsx db/seed/import-dpt.ts dpt-202
 ## 🔧 Troubleshooting
 
 ### Error: "Module not found" during build
+
 - Check `package.json` - all dependencies installed?
 - Check `tsconfig.json` - paths configured?
 - Check import paths - use `@/` for absolute imports
 
 ### Error: "Database connection failed"
+
 - Verify `DATABASE_URL` in Vercel env vars
 - Check Neon database is active
 - Test connection: `psql $DATABASE_URL`
 
 ### Error: "Azure AD authentication failed"
+
 - Verify redirect URI in Azure Portal matches Vercel URL
 - Check `AZURE_AD_CLIENT_ID` and `AZURE_AD_CLIENT_SECRET`
 - Ensure tenant ID is correct (or use "common")
 
 ### Error: "Email sending failed"
+
 - Verify Gmail App Password (not regular password!)
 - Check `EMAIL` and `EMAIL_PASSWORD` env vars
 - Test SMTP connection locally first
 
 ### Build succeeds but app doesn't work
+
 - Check Vercel logs: Project → Deployments → Click deployment → View Logs
 - Check Runtime Logs: Project → Logs
 - Common issues:
@@ -277,6 +299,7 @@ DATABASE_URL="postgresql://production-url" npx tsx db/seed/import-dpt.ts dpt-202
 4. **Results**: `https://your-domain.vercel.app/hasil` (admin only)
 
 **User Instructions**:
+
 - Online voters: Login dengan akun Microsoft ITB
 - Offline voters: Gunakan token yang dikirim via email
 

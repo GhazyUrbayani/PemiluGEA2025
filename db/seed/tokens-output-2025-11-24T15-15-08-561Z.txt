@@ -1,0 +1,18 @@
+=== PEMILU GEA 2025 - VOTING TOKENS ===
+Generated: 24/11/2025, 22.15.08
+Total: 2 tokens
+Email Status: Sent: 2, Failed: 0
+
+IMPORTANT: Simpan file ini dengan AMAN!
+Token sudah dikirim otomatis ke email (cek status di bawah).
+Token hanya bisa digunakan 1x untuk voting.
+
+================================================================================
+
+[1] Tarsisius Davian Hutajulu
+    Email: 12023013@mahasiswa.itb.ac.id
+    Token: 51466dd235d9a4c5cff5963c133cb2e75ed0fee35384d12d270c3e1ebe333e97
+
+[2] Hafizh Tanfidzi Zein
+    Email: 12023048@mahasiswa.itb.ac.id
+    Token: 16ab990582d7d87912a75189ab78b056b09afa4e04dea10ae1fa5579afe44e6d

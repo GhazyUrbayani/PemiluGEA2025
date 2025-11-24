@@ -1,8 +1,8 @@
-import { loadEnvConfig } from "@next/env";
+import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
-const projectDir = process.cwd();
-loadEnvConfig(projectDir);
+// Load .env.local
+config({ path: ".env.local" });
 
 export default defineConfig({
   dialect: "postgresql",
@@ -10,6 +10,5 @@ export default defineConfig({
   out: "./db/migrations",
   dbCredentials: {
     url: process.env.DATABASE_URL!,
-    ssl: true,
   },
 });
