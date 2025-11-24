@@ -36,7 +36,7 @@ export default function KandidatPage() {
       }
       
 
-      const dummyData: Candidate[] = [
+      const Data: Candidate[] = [
         {
           id: "12023026",
           name: "Geraldus Yudhistira Davin",
@@ -61,7 +61,7 @@ export default function KandidatPage() {
         },
       ];
 
-      setCandidates(dummyData);
+      setCandidates(Data);
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching candidates:", error);
