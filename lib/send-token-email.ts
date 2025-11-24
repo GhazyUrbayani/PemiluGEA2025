@@ -231,7 +231,7 @@ export async function verifyEmailConnection(transporter: Transporter): Promise<b
         console.error("❌ SMTP Server verification failed:", error.message);
         resolve(false);
       } else {
-        console.log("✅ SMTP Server is ready");
+        console.log("✅ SMTP Server is ready", _success);
         resolve(true);
       }
     });
