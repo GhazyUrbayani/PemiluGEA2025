@@ -24,12 +24,12 @@ export default function CandidateCard({
 }: CandidateCardProps) {
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-2xl">
-      <CardHeader className="relative h-64 overflow-hidden bg-gradient-to-br from-pemilu-primary to-gea-yellow p-0">
+      <CardHeader className="relative h-64 overflow-hidden bg-white p-0">
         <Image
           src={photoUrl}
           alt={`Foto ${name}`}
           fill
-          className="object-cover transition-transform duration-300 group-hover:scale-110"
+          className="object-contain transition-transform duration-300 group-hover:scale-105"
         />
         {hashtag && (
           <div className="absolute bottom-4 right-4 rounded-full bg-gea-blue/80 px-4 py-2 backdrop-blur-sm">

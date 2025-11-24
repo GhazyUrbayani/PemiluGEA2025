@@ -49,12 +49,12 @@ function SortableItem({ candidate, index }: { candidate: Candidate; index: numbe
             <GripVertical className="h-6 w-6 text-sand-gold" />
           </button>
         </div>
-        <CardHeader className="relative h-48 overflow-hidden bg-gradient-to-br from-pemilu-primary to-gea-yellow p-0">
+        <CardHeader className="relative h-48 overflow-hidden bg-white p-0">
           <Image
             src={candidate.photoUrl}
             alt={`Foto ${candidate.name}`}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-110"
+            className="object-contain transition-transform duration-300 group-hover:scale-105"
           />
           {candidate.hashtag && (
             <div className="absolute bottom-4 right-4 rounded-full bg-gea-blue/80 px-4 py-2 backdrop-blur-sm">
