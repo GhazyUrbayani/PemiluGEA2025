@@ -226,7 +226,7 @@ export async function sendTokenEmail(
  */
 export async function verifyEmailConnection(transporter: Transporter): Promise<boolean> {
   return new Promise((resolve) => {
-    transporter.verify((error, success) => {
+    transporter.verify((error, _success) => {
       if (error) {
         console.error("❌ SMTP Server verification failed:", error.message);
         resolve(false);
