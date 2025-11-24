@@ -1,132 +1,82 @@
+/**
+ * API Route: /api/auth/login-token
+ * 
+ * Endpoint untuk validasi token dan login pemilih offline
+ */
+
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
 import { voterRegistry } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { compare } from "bcrypt";
 
-/**
- * API Route: POST /api/auth/login-token
- * 
- * Endpoint untuk validasi token offline voter.
- * 
- * Request Body:
- * - token: string (token yang dimasukkan pemilih)
- * 
- * Response:
- * - 200: Token valid, pemilih belum voting
- * - 400: Bad request (token kosong)
- * - 401: Token tidak valid atau sudah digunakan
- * - 500: Server error
- */
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    // Parse request body
-    const body = await request.json();
+    const body = await req.json();
     const { token } = body;
 
-    // Validasi input
+    // Validate input
     if (!token || typeof token !== "string") {
       return NextResponse.json(
-        { message: "Token tidak valid" },
+        { success: false, message: "Token tidak valid" },
         { status: 400 }
       );
     }
 
-    // ========================================
-    // DUMMY TOKEN HARDCODE - HAPUS NANTI!
-    // ========================================
-    const DUMMY_TOKENS = ["TESTTOKEN123", "DUMMYTOKEN456", "DEVTOKEN789"];
-    
-    if (DUMMY_TOKENS.includes(token.toUpperCase())) {
-      // Bypass database check for dummy tokens
-      const dummyEmail = `dummy_${token.toLowerCase()}@test.com`;
-      
-      const response = NextResponse.json(
-        {
-          message: "Token valid (DUMMY MODE)",
-          voter: {
-            email: dummyEmail,
-            voteMethod: "offline",
-          },
-        },
-        { status: 200 }
-      );
+    // Find voters with tokens in database
+    const voters = await db.query.voterRegistry.findMany({
+      where: eq(voterRegistry.voteMethod, "offline"),
+    });
 
-      response.cookies.set("voter-session", dummyEmail, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60, // 1 jam
-        path: "/",
-      });
-
-      response.cookies.set("vote-method", "offline", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60,
-        path: "/",
-      });
-
-      return response;
+    // Check token against all voters using bcrypt compare
+    let matchedVoter = null;
+    for (const voter of voters) {
+      if (voter.tokenHash) {
+        const isMatch = await compare(token, voter.tokenHash);
+        if (isMatch) {
+          matchedVoter = voter;
+          break;
+        }
+      }
     }
-    // ========================================
-    // END DUMMY TOKEN
-    // ========================================
 
-    // Cari voter dengan token hash yang cocok di database
-    // PENTING: Token disimpan dalam bentuk hash di database untuk keamanan
-    const voters = await db
-      .select()
-      .from(voterRegistry)
-      .where(eq(voterRegistry.tokenHash, token))
-      .limit(1);
-
-    // Jika tidak ada voter dengan token tersebut
-    if (voters.length === 0) {
+    if (!matchedVoter) {
       return NextResponse.json(
-        { message: "Token tidak ditemukan atau tidak valid" },
+        { success: false, message: "Token tidak valid atau tidak ditemukan" },
         { status: 401 }
       );
     }
 
-    const voter = voters[0];
-
-    // Cek apakah voter eligible untuk memilih
-    if (!voter.isEligible) {
+    // Check eligibility
+    if (!matchedVoter.isEligible) {
       return NextResponse.json(
-        { message: "Anda tidak terdaftar dalam Daftar Pemilih Tetap (DPT)" },
-        { status: 401 }
+        { success: false, message: "Anda tidak memiliki hak untuk memilih" },
+        { status: 403 }
       );
     }
 
-    // Cek apakah voter sudah memilih
-    if (voter.hasVoted) {
+    // Check if already voted
+    if (matchedVoter.hasVoted) {
       return NextResponse.json(
-        { message: "Token ini sudah digunakan untuk memilih" },
-        { status: 401 }
+        { success: false, message: "Token sudah digunakan untuk voting" },
+        { status: 403 }
       );
     }
 
-    // Token valid dan belum digunakan
-    // Set session cookie atau JWT untuk tracking di voting page
-    const response = NextResponse.json(
-      {
-        message: "Token valid",
-        voter: {
-          email: voter.email,
-          voteMethod: "offline",
-        },
-      },
-      { status: 200 }
-    );
+    // Create response with success
+    const response = NextResponse.json({
+      success: true,
+      message: "Login berhasil",
+      email: matchedVoter.email,
+      nim: matchedVoter.nim,
+    });
 
-    // Set cookie untuk session management
-    // Cookie ini akan digunakan di /vote page untuk verifikasi
-    response.cookies.set("voter-session", voter.email, {
+    // Set cookies for session
+    response.cookies.set("voter-session", matchedVoter.email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60, // 1 jam
+      maxAge: 60 * 60 * 2, // 2 hours
       path: "/",
     });
 
@@ -134,15 +84,15 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60,
+      maxAge: 60 * 60 * 2,
       path: "/",
     });
 
     return response;
   } catch (error) {
-    console.error("Error di /api/auth/login-token:", error);
+    console.error("Token login error:", error);
     return NextResponse.json(
-      { message: "Terjadi kesalahan server. Silakan coba lagi." },
+      { success: false, message: "Terjadi kesalahan server" },
       { status: 500 }
     );
   }

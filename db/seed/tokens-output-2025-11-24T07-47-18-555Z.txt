@@ -1,0 +1,11 @@
+=== PEMILU GEA 2025 - VOTING TOKENS ===
+Generated: 24/11/2025, 14.47.18
+Total: 0 tokens
+Email Status: SKIPPED
+
+IMPORTANT: Simpan file ini dengan AMAN!
+Token ini perlu dikirim MANUAL ke email masing-masing pemilih.
+Token hanya bisa digunakan 1x untuk voting.
+
+================================================================================
+
