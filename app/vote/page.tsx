@@ -16,53 +16,46 @@ function Page() {
   }, []);
 
   const checkAuth = async () => {
+    setIsLoading(true);
     try {
-      // Check NextAuth session (Azure AD)
-      const response = await fetch("/api/auth/session");
-      const session = await response.json();
+      // 1. Check NextAuth session (for online voters)
+      const sessionRes = await fetch("/api/auth/session");
+      const session = await sessionRes.json();
 
       if (session?.user?.email) {
-        // User logged in via Azure AD - check if eligible voter
         const validationResponse = await fetch("/api/vote/validation", {
           method: "POST",
         });
         
         if (validationResponse.ok) {
           setIsAuthenticated(true);
+          setIsLoading(false);
           return;
         } else {
           const errorData = await validationResponse.json();
-          toast.error(errorData.message || "Anda tidak terdaftar di DPT");
+          toast.error(errorData.message || "Anda tidak terdaftar di DPT atau sudah memilih.");
           router.push("/");
+          setIsLoading(false);
           return;
         }
       }
 
-      // Check offline token session
-      const voterSession = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("voter-session="));
-      
-      if (voterSession) {
-        // Verify token with backend
-        const tokenValidation = await fetch("/api/auth/login-token", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: voterSession.split("=")[1] }),
-        });
+      // 2. Check for offline voter session cookie
+      const offlineSessionRes = await fetch("/api/auth/session-check");
+      const offlineSession = await offlineSessionRes.json();
 
-        if (tokenValidation.ok) {
-          setIsAuthenticated(true);
-          return;
-        }
+      if (offlineSession?.isAuthenticated) {
+        setIsAuthenticated(true);
+        setIsLoading(false);
+        return;
       }
 
-      // No valid session
+      // 3. If no session found, redirect to login
       toast.error("Silakan login terlebih dahulu untuk melakukan voting");
       router.push("/auth/sign-in");
     } catch (error) {
       console.error("Auth check error:", error);
-      toast.error("Gagal memeriksa autentikasi");
+      toast.error("Gagal memeriksa autentikasi. Silakan coba lagi.");
       router.push("/auth/sign-in");
     } finally {
       setIsLoading(false);
