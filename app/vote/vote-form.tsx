@@ -1,351 +1,193 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
-import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GripVertical } from "lucide-react";
+import { useState } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Loader2, ArrowUp, X } from "lucide-react";
 
+// Tipe data kandidat
 interface Candidate {
   id: string;
   name: string;
   photoUrl: string;
-  position: "kahim" | "senator";
   major?: string;
   batch?: number;
-  vision?: string;
-  mission?: string;
   hashtag?: string;
+  position: "kahim" | "senator";
 }
 
-// Komponen Sortable Item with Card
-function SortableItem({ candidate, index }: { candidate: Candidate; index: number }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: candidate.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.8 : 1,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="mb-4"
-    >
-      <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-2xl">
-        <div className="absolute right-2 top-2 z-10 rounded-full bg-lightsaber-yellow px-4 py-2 text-sm font-bold text-vader-black shadow-lg">
-          Pilihan #{index + 1}
-        </div>
-        <div className="absolute left-2 top-2 z-10" {...attributes} {...listeners}>
-          <button className="cursor-grab rounded-lg bg-vader-black/80 p-2 backdrop-blur-sm hover:bg-vader-black active:cursor-grabbing">
-            <GripVertical className="h-6 w-6 text-sand-gold" />
-          </button>
-        </div>
-        <CardHeader className="relative h-48 overflow-hidden bg-white p-0">
-          <Image
-            src={candidate.photoUrl}
-            alt={`Foto ${candidate.name}`}
-            fill
-            className="object-contain transition-transform duration-300 group-hover:scale-105"
-          />
-          {candidate.hashtag && (
-            <div className="absolute bottom-4 right-4 rounded-full bg-gea-blue/80 px-4 py-2 backdrop-blur-sm">
-              <p className="text-sm font-bold text-gea-yellow">{candidate.hashtag}</p>
-            </div>
-          )}
-        </CardHeader>
-
-        <CardContent className="space-y-3 p-4">
-          <div className="text-center">
-            <CardTitle className="text-xl font-bold text-gray-800">
-              {candidate.name}
-            </CardTitle>
-            {candidate.major && candidate.batch && (
-              <p className="text-sm text-gray-600">
-                {candidate.major} &apos;{String(candidate.batch).slice(-2)}
-              </p>
-            )}
-          </div>
-
-          {candidate.vision && (
-            <div>
-              <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary">
-                Visi
-              </h4>
-              <p className="text-xs leading-relaxed text-gray-700">{candidate.vision}</p>
-            </div>
-          )}
-
-          {candidate.mission && (
-            <div>
-              <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary">
-                Misi
-              </h4>
-              <p className="text-xs leading-relaxed text-gray-700">{candidate.mission}</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
+interface VoteFormProps {
+  candidates: Candidate[];
+  voteType: "kahim" | "senator";
+  onNext: (rankings: string[]) => void;
+  isLastStep?: boolean;
 }
 
-export default function VoteForm() {
+export default function VoteForm({ candidates, voteType, onNext, isLastStep }: VoteFormProps) {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
+  const [rankedCandidates, setRankedCandidates] = useState<Candidate[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [kahimCandidates, setKahimCandidates] = useState<Candidate[]>([]);
-  const [senatorCandidates, setSenatorCandidates] = useState<Candidate[]>([]);
+  // Filter kandidat yang BELUM dipilih untuk ditampilkan di area bawah
+  const availableCandidates = candidates.filter(
+    (c) => !rankedCandidates.find((r) => r.id === c.id)
+  );
 
-  // State untuk ranking
-  const [kahimRanking, setKahimRanking] = useState<string[]>([]);
-  const [senatorRanking, setSenatorRanking] = useState<string[]>([]);
-
-  // Fetch candidates
-  useEffect(() => {
-    fetchCandidates();
-  }, []);
-
-  const fetchCandidates = async () => {
-    try {
-      const response = await fetch("/api/candidates");
-      const result = await response.json();
-
-      let kahim: Candidate[] = [];
-      let senator: Candidate[] = [];
-
-      // Check both possible response structures
-      const candidateData = result.data || result.candidates || [];
-      
-      if (candidateData.length > 0) {
-        kahim = candidateData.filter((c: Candidate) => c.position === "kahim");
-        senator = candidateData.filter((c: Candidate) => c.position === "senator");
-      }
-      
-      // If no data from API, use fallback dummy data
-      if (kahim.length === 0) {
-        kahim = [
-          {
-            id: "12023026",
-            name: "Geraldus Yudhistira Davin",
-            photoUrl: "/Davin.png",
-            major: "Teknik Geologi",
-            batch: 2023,
-            vision: "Mewujudkan GEA yang inklusif, inovatif, dan berdampak bagi mahasiswa Teknik Geologi ITB",
-            mission: "1. Meningkatkan partisipasi aktif anggota dalam kegiatan himpunan\n2. Memperkuat sinergi dengan alumni dan industri\n3. Mengembangkan program pengembangan soft skill dan hard skill",
-            hashtag: "#GerakBersama",
-            position: "kahim",
-          },
-        ];
-      }
-      
-      if (senator.length === 0) {
-        senator = [
-          {
-            id: "12023075",
-            name: "Albert Kamaruddin",
-            photoUrl: "/Albert.png",
-            major: "Teknik Geologi",
-            batch: 2023,
-            vision: "Menjadi jembatan aspirasi mahasiswa Teknik Geologi di tingkat institut",
-            mission: "1. Menyampaikan aspirasi mahasiswa ke KM ITB\n2. Memperjuangkan kebijakan yang pro-mahasiswa\n3. Transparansi penuh dalam setiap keputusan",
-            hashtag: "#SuaraKita",
-            position: "senator",
-          },
-        ];
-      }
-
-      // Add Kotak Kosong
-      kahim.push({
-        id: "KOTAK_KOSONG_KAHIM",
-        name: "Kotak Kosong",
-        photoUrl: "/logos/pemilu logo fix.png",
-        position: "kahim",
-      });
-      senator.push({
-        id: "KOTAK_KOSONG_SENATOR",
-        name: "Kotak Kosong",
-        photoUrl: "/logos/pemilu logo fix.png",
-        position: "senator",
-      });
-
-      setKahimCandidates(kahim);
-      setSenatorCandidates(senator);
-
-      // Initialize rankings
-      setKahimRanking(kahim.map((c: Candidate) => c.id));
-      setSenatorRanking(senator.map((c: Candidate) => c.id));
-    } catch (error) {
-      console.error("Error fetching candidates:", error);
-      toast.error("Gagal memuat data kandidat");
-    } finally {
-      setIsFetching(false);
-    }
+  // Fungsi: Masukkan kandidat ke daftar peringkat (Klik dari Bawah -> Atas)
+  const handleSelect = (candidate: Candidate) => {
+    setRankedCandidates([...rankedCandidates, candidate]);
   };
 
-  // Handle drag end for Kahim
-  const handleKahimDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    setKahimRanking((items) => {
-      const oldIndex = items.indexOf(active.id as string);
-      const newIndex = items.indexOf(over.id as string);
-      return arrayMove(items, oldIndex, newIndex);
-    });
+  // Fungsi: Batalkan pilihan (Klik dari Atas -> Bawah)
+  const handleDeselect = (candidate: Candidate) => {
+    setRankedCandidates(rankedCandidates.filter((c) => c.id !== candidate.id));
   };
 
-  // Handle drag end for Senator
-  const handleSenatorDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    setSenatorRanking((items) => {
-      const oldIndex = items.indexOf(active.id as string);
-      const newIndex = items.indexOf(over.id as string);
-      return arrayMove(items, oldIndex, newIndex);
-    });
-  };
-
-  // Submit vote
   const handleSubmit = async () => {
-    if (!kahimRanking.length || !senatorRanking.length) {
-      toast.error("Pilihan tidak boleh kosong!");
+    if (rankedCandidates.length === 0) {
+      toast.error("Pilih setidaknya satu kandidat atau Kotak Kosong!");
       return;
     }
 
-    // Confirmation
-    const confirmed = window.confirm(
-      "Apakah Anda yakin dengan pilihan Anda?\n\n" +
-      "Ketua Umum:\n" +
-      kahimRanking.map((id, idx) => `${idx + 1}. ${kahimCandidates.find(c => c.id === id)?.name}`).join("\n") +
-      "\n\nSenator:\n" +
-      senatorRanking.map((id, idx) => `${idx + 1}. ${senatorCandidates.find(c => c.id === id)?.name}`).join("\n")
-    );
-
-    if (!confirmed) return;
-
-    setIsLoading(true);
-
+    setIsSubmitting(true);
     try {
-      // TODO: Kirim ke API /api/vote/submit
-      const response = await fetch("/api/vote/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ketuaUmum: kahimRanking,
-          senator: senatorRanking,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success("Suara berhasil dicatat!");
-        router.push("/vote/success");
-      } else {
-        toast.error(data.error || "Gagal mengirim suara");
-      }
+      // Kirim array ID kandidat yang sudah terurut
+      const rankingIds = rankedCandidates.map((c) => c.id);
+      await onNext(rankingIds);
     } catch (error) {
-      console.error(error);
-      toast.error("Terjadi kesalahan saat mengirim suara");
-    } finally {
-      setIsLoading(false);
+      toast.error("Gagal menyimpan pilihan.");
+      setIsSubmitting(false);
     }
   };
 
-  if (isFetching) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-lightsaber-yellow border-t-transparent"></div>
-          <p className="mt-4 text-neutral-cream">Memuat data kandidat...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto max-w-4xl space-y-8 p-4">
-      <div className="text-center">
-        <h1 className="font-death-star text-4xl text-lightsaber-yellow md:text-5xl">
-          PEMILIHAN SUARA
-        </h1>
-        <p className="mt-2 text-sand-gold">
-          Drag kandidat untuk mengurutkan preferensi Anda
-        </p>
-        <p className="text-sm text-neutral-cream">
-          Pilihan #1 = Preferensi Tertinggi
-        </p>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      
+      {/* --- AREA 1: PILIHAN ANDA (RANKING) --- */}
+      <div className="bg-space-dark/40 border border-gold-sand/30 rounded-xl p-4 md:p-6 sticky top-20 z-10 backdrop-blur-md shadow-2xl">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-death-star text-lightsaber-yellow tracking-widest">
+            URUTAN PILIHAN ANDA
+          </h3>
+          <span className="text-xs text-sand-gold/70 font-tango">
+            Klik untuk membatalkan
+          </span>
+        </div>
+
+        {rankedCandidates.length === 0 ? (
+          <div className="border-2 border-dashed border-gray-600 rounded-lg h-32 flex flex-col items-center justify-center text-gray-500 bg-black/20">
+            <ArrowUp className="w-8 h-8 mb-2 opacity-50 animate-bounce" />
+            <p className="font-tango text-sm">Klik kandidat di bawah untuk memilih</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {rankedCandidates.map((candidate, index) => (
+              <div
+                key={candidate.id}
+                onClick={() => handleDeselect(candidate)}
+                className="group flex items-center gap-4 bg-gradient-to-r from-gea-blue to-space-dark p-3 rounded-lg border border-gold-sand/50 cursor-pointer hover:bg-red-900/40 transition-all hover:border-red-500"
+              >
+                {/* Badge Nomor Urut */}
+                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-lightsaber-yellow text-space-dark font-death-star text-xl rounded-full shadow-lg border-2 border-white">
+                  {index + 1}
+                </div>
+
+                {/* Info Kandidat Mini */}
+                <div className="flex-shrink-0 w-12 h-12 relative rounded-full overflow-hidden border border-gray-400">
+                   <Image src={candidate.photoUrl} alt={candidate.name} fill className="object-cover" />
+                </div>
+                
+                <div className="flex-grow">
+                  <h4 className="font-bold text-white text-sm md:text-base uppercase truncate">
+                    {candidate.name}
+                  </h4>
+                  {candidate.hashtag && (
+                    <p className="text-xs text-r2d2-blue">#{candidate.hashtag}</p>
+                  )}
+                </div>
+
+                <div className="mr-2">
+                  <X className="w-5 h-5 text-gray-400 group-hover:text-red-500 transition-colors" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Ketua Umum BPH */}
-      <Card className="border-2 border-lightsaber-yellow bg-space-dark/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="font-death-star text-2xl text-lightsaber-yellow">
-            Ketua Umum BPH
-          </CardTitle>
-          <p className="text-sm text-sand-gold">
-            Urutkan kandidat sesuai preferensi Anda (drag & drop)
-          </p>
-        </CardHeader>
-        <CardContent>
-          <DndContext collisionDetection={closestCenter} onDragEnd={handleKahimDragEnd}>
-            <SortableContext items={kahimRanking} strategy={verticalListSortingStrategy}>
-              {kahimRanking.map((id, index) => {
-                const candidate = kahimCandidates.find(c => c.id === id);
-                return candidate ? (
-                  <SortableItem key={id} candidate={candidate} index={index} />
-                ) : null;
-              })}
-            </SortableContext>
-          </DndContext>
-        </CardContent>
-      </Card>
+      {/* --- SEPARATOR --- */}
+      <div className="relative flex items-center justify-center py-4">
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
+        <span className="absolute px-4 bg-[#1a1a1a] text-gray-500 text-xs font-tango uppercase tracking-widest">
+          Daftar Kandidat Tersedia
+        </span>
+      </div>
 
-      {/* Senator */}
-      <Card className="border-2 border-r2d2-blue bg-space-dark/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="font-death-star text-2xl text-r2d2-blue">
-            Senator
-          </CardTitle>
-          <p className="text-sm text-sand-gold">
-            Urutkan kandidat sesuai preferensi Anda (drag & drop)
-          </p>
-        </CardHeader>
-        <CardContent>
-          <DndContext collisionDetection={closestCenter} onDragEnd={handleSenatorDragEnd}>
-            <SortableContext items={senatorRanking} strategy={verticalListSortingStrategy}>
-              {senatorRanking.map((id, index) => {
-                const candidate = senatorCandidates.find(c => c.id === id);
-                return candidate ? (
-                  <SortableItem key={id} candidate={candidate} index={index} />
-                ) : null;
-              })}
-            </SortableContext>
-          </DndContext>
-        </CardContent>
-      </Card>
+      {/* --- AREA 2: DAFTAR KANDIDAT (AVAILABLE) --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {availableCandidates.map((candidate) => (
+          <div
+            key={candidate.id}
+            onClick={() => handleSelect(candidate)}
+            className="cursor-pointer group relative overflow-hidden rounded-xl bg-space-dark/50 border border-gray-700 hover:border-lightsaber-yellow hover:shadow-[0_0_15px_rgba(227,196,94,0.3)] transition-all duration-200 active:scale-95"
+          >
+            <div className="flex p-4 gap-4 items-center">
+              {/* Foto Besar */}
+              <div className="relative w-20 h-24 flex-shrink-0 rounded-lg overflow-hidden border border-gray-600">
+                <Image
+                  src={candidate.photoUrl}
+                  alt={candidate.name}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+              </div>
 
-      {/* Submit Button */}
-      <div className="flex justify-center">
+              {/* Detail */}
+              <div className="flex flex-col justify-center">
+                <h4 className="text-lg font-bold text-white font-death-star uppercase leading-tight mb-1 group-hover:text-lightsaber-yellow transition-colors">
+                  {candidate.name}
+                </h4>
+                {candidate.major && (
+                   <p className="text-xs text-r2d2-blue font-tango mb-2">
+                     {candidate.major} {candidate.batch}
+                   </p>
+                )}
+                <div className="inline-flex items-center text-xs font-bold text-space-dark bg-gray-200 px-3 py-1 rounded-full w-max group-hover:bg-lightsaber-yellow transition-colors">
+                  PILIH +
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {availableCandidates.length === 0 && (
+            <div className="col-span-full text-center py-8 text-gray-500 italic">
+                Semua kandidat sudah dipilih.
+            </div>
+        )}
+      </div>
+
+      {/* --- TOMBOL AKSI --- */}
+      <div className="pt-6 flex justify-end">
         <Button
           onClick={handleSubmit}
-          disabled={isLoading}
-          className="h-14 w-full max-w-md bg-gradient-to-r from-yoda-green to-cyan-saber text-xl font-bold text-vader-black hover:scale-105 hover:shadow-[0_0_30px_rgba(111,195,109,0.8)]"
+          disabled={isSubmitting || rankedCandidates.length === 0}
+          className="bg-gradient-to-r from-lightsaber-yellow to-orange-500 text-black font-bold px-8 py-6 rounded-lg text-lg hover:shadow-[0_0_20px_rgba(227,196,94,0.6)] transition-all w-full md:w-auto"
         >
-          {isLoading ? "Mengirim..." : "Kirim Suara"}
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Menyimpan...
+            </>
+          ) : isLastStep ? (
+            "Kirim Suara 🚀"
+          ) : (
+            "Lanjut ke Senator 👉"
+          )}
         </Button>
       </div>
+
     </div>
   );
 }
