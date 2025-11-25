@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   try {
     const cookieStore = cookies();
     const voterSession = cookieStore.get("voter-session");
