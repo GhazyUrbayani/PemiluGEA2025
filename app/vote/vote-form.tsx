@@ -1,193 +1,502 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Loader2, ArrowUp, X } from "lucide-react";
+import Image from "next/image";
 
-// Tipe data kandidat
 interface Candidate {
   id: string;
   name: string;
   photoUrl: string;
+  position: "kahim" | "senator";
   major?: string;
   batch?: number;
+  vision?: string;
+  mission?: string;
   hashtag?: string;
-  position: "kahim" | "senator";
 }
 
-interface VoteFormProps {
-  candidates: Candidate[];
-  voteType: "kahim" | "senator";
-  onNext: (rankings: string[]) => void;
-  isLastStep?: boolean;
-}
+// Komponen Candidate Card untuk Tap-to-Select
+function CandidateCard({ 
+  candidate, 
+  rank, 
+  onClick,
+  isSelected 
+}: { 
+  candidate: Candidate; 
+  rank?: number;
+  onClick: () => void;
+  isSelected: boolean;
+}) {
+  return (
+    <Card 
+      onClick={onClick}
+      className={`group relative overflow-hidden transition-all duration-300 cursor-pointer transform ${
+        isSelected 
+          ? 'ring-4 ring-lightsaber-yellow shadow-2xl scale-105 bg-gradient-to-br from-yellow-50 to-yellow-100 animate-pulse-slow' 
+          : 'hover:shadow-xl hover:scale-[1.02] opacity-70 hover:opacity-100 hover:ring-2 hover:ring-gray-300 active:scale-95'
+      }`}
+    >
+      {/* Tap indicator untuk card yang belum dipilih */}
+      {!isSelected && (
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/5 z-20">
+          <div className="bg-white/90 rounded-full px-6 py-3 shadow-lg">
+            <p className="text-sm font-bold text-gray-700">👆 Ketuk untuk Pilih</p>
+          </div>
+        </div>
+      )}
+      {/* Badge Pilihan dengan animasi pop */}
+      {rank && (
+        <div className="absolute right-2 top-2 z-10 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 px-5 py-2.5 text-base font-extrabold text-white shadow-2xl animate-bounce-subtle border-2 border-white">
+          ✓ Pilihan #{rank}
+        </div>
+      )}
+      
+      {/* Checkmark besar di pojok kiri atas untuk card terpilih */}
+      {isSelected && (
+        <div className="absolute left-2 top-2 z-10 rounded-full bg-green-500 p-2 shadow-xl animate-scale-in">
+          <svg className="w-6 h-6 text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24" stroke="currentColor">
+            <path d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+      )}
+      
+      <CardHeader className={`relative h-48 overflow-hidden p-0 ${
+        isSelected ? 'bg-gradient-to-br from-yellow-100 to-orange-100' : 'bg-white'
+      }`}>
+        <Image
+          src={candidate.photoUrl}
+          alt={`Foto ${candidate.name}`}
+          fill
+          className={`object-contain transition-all duration-300 ${
+            isSelected ? 'scale-110 brightness-110' : 'group-hover:scale-105'
+          }`}
+        />
+        {candidate.hashtag && (
+          <div className="absolute bottom-4 right-4 rounded-full bg-gea-blue/80 px-4 py-2 backdrop-blur-sm">
+            <p className="text-sm font-bold text-gea-yellow">{candidate.hashtag}</p>
+          </div>
+        )}
+      </CardHeader>
 
-export default function VoteForm({ candidates, voteType, onNext, isLastStep }: VoteFormProps) {
-  const router = useRouter();
-  const [rankedCandidates, setRankedCandidates] = useState<Candidate[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+      <CardContent className={`space-y-3 p-4 ${
+        isSelected ? 'bg-gradient-to-br from-yellow-50 to-orange-50' : ''
+      }`}>
+        <div className="text-center">
+          <CardTitle className={`text-xl font-bold transition-colors ${
+            isSelected ? 'text-orange-700' : 'text-gray-800'
+          }`}>
+            {candidate.name}
+          </CardTitle>
+          {candidate.major && candidate.batch && (
+            <p className="text-sm text-gray-600">
+              {candidate.major} &apos;{String(candidate.batch).slice(-2)}
+            </p>
+          )}
+        </div>
 
-  // Filter kandidat yang BELUM dipilih untuk ditampilkan di area bawah
-  const availableCandidates = candidates.filter(
-    (c) => !rankedCandidates.find((r) => r.id === c.id)
+        {candidate.vision && (
+          <div>
+            <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary">
+              Visi
+            </h4>
+            <p className="text-xs leading-relaxed text-gray-700">{candidate.vision}</p>
+          </div>
+        )}
+
+        {candidate.mission && (
+          <div>
+            <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary">
+              Misi
+            </h4>
+            <p className="text-xs leading-relaxed text-gray-700">{candidate.mission}</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
+}
 
-  // Fungsi: Masukkan kandidat ke daftar peringkat (Klik dari Bawah -> Atas)
-  const handleSelect = (candidate: Candidate) => {
-    setRankedCandidates([...rankedCandidates, candidate]);
+export default function VoteForm() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
+
+  const [kahimCandidates, setKahimCandidates] = useState<Candidate[]>([]);
+  const [senatorCandidates, setSenatorCandidates] = useState<Candidate[]>([]);
+
+  // State untuk pilihan terpilih (berurutan)
+  const [selectedKahim, setSelectedKahim] = useState<string[]>([]);
+  const [selectedSenator, setSelectedSenator] = useState<string[]>([]);
+
+  // Fetch candidates
+  useEffect(() => {
+    fetchCandidates();
+  }, []);
+
+  const fetchCandidates = async () => {
+    try {
+      const response = await fetch("/api/candidates");
+      const result = await response.json();
+
+      let kahim: Candidate[] = [];
+      let senator: Candidate[] = [];
+
+      // Check both possible response structures
+      const candidateData = result.data || result.candidates || [];
+      
+      if (candidateData.length > 0) {
+        kahim = candidateData.filter((c: Candidate) => c.position === "kahim");
+        senator = candidateData.filter((c: Candidate) => c.position === "senator");
+      }
+      
+      // If no data from API, use fallback dummy data
+      if (kahim.length === 0) {
+        kahim = [
+          {
+            id: "12023026",
+            name: "Geraldus Yudhistira Davin",
+            photoUrl: "/Davin.png",
+            major: "Teknik Geologi",
+            batch: 2023,
+            vision: "Mewujudkan GEA yang inklusif, inovatif, dan berdampak bagi mahasiswa Teknik Geologi ITB",
+            mission: "1. Meningkatkan partisipasi aktif anggota dalam kegiatan himpunan\n2. Memperkuat sinergi dengan alumni dan industri\n3. Mengembangkan program pengembangan soft skill dan hard skill",
+            hashtag: "#GerakBersama",
+            position: "kahim",
+          },
+        ];
+      }
+      
+      if (senator.length === 0) {
+        senator = [
+          {
+            id: "12023075",
+            name: "Albert Kamaruddin",
+            photoUrl: "/Albert.png",
+            major: "Teknik Geologi",
+            batch: 2023,
+            vision: "Menjadi jembatan aspirasi mahasiswa Teknik Geologi di tingkat institut",
+            mission: "1. Menyampaikan aspirasi mahasiswa ke KM ITB\n2. Memperjuangkan kebijakan yang pro-mahasiswa\n3. Transparansi penuh dalam setiap keputusan",
+            hashtag: "#SuaraKita",
+            position: "senator",
+          },
+        ];
+      }
+
+      // Add Kotak Kosong
+      kahim.push({
+        id: "KOTAK_KOSONG_KAHIM",
+        name: "Kotak Kosong",
+        photoUrl: "/logos/pemilu logo fix.png",
+        position: "kahim",
+      });
+      senator.push({
+        id: "KOTAK_KOSONG_SENATOR",
+        name: "Kotak Kosong",
+        photoUrl: "/logos/pemilu logo fix.png",
+        position: "senator",
+      });
+
+      setKahimCandidates(kahim);
+      setSenatorCandidates(senator);
+    } catch (error) {
+      console.error("Error fetching candidates:", error);
+      toast.error("Gagal memuat data kandidat");
+    } finally {
+      setIsFetching(false);
+    }
   };
 
-  // Fungsi: Batalkan pilihan (Klik dari Atas -> Bawah)
-  const handleDeselect = (candidate: Candidate) => {
-    setRankedCandidates(rankedCandidates.filter((c) => c.id !== candidate.id));
+  // Handle tap selection for Kahim
+  const handleKahimSelect = (candidateId: string) => {
+    const candidate = kahimCandidates.find(c => c.id === candidateId);
+    if (!candidate) return;
+
+    if (selectedKahim.includes(candidateId)) {
+      // Remove from selected
+      setSelectedKahim(selectedKahim.filter(id => id !== candidateId));
+      toast.info(`"${candidate.name}" dibatalkan dari pilihan Ketua Umum`, {
+        duration: 2000,
+      });
+    } else {
+      // Add to selected
+      const newRank = selectedKahim.length + 1;
+      setSelectedKahim([...selectedKahim, candidateId]);
+      toast.success(`"${candidate.name}" dipilih sebagai preferensi #${newRank} untuk Ketua Umum`, {
+        duration: 2000,
+      });
+    }
   };
 
+  // Handle tap selection for Senator
+  const handleSenatorSelect = (candidateId: string) => {
+    const candidate = senatorCandidates.find(c => c.id === candidateId);
+    if (!candidate) return;
+
+    if (selectedSenator.includes(candidateId)) {
+      // Remove from selected
+      setSelectedSenator(selectedSenator.filter(id => id !== candidateId));
+      toast.info(`"${candidate.name}" dibatalkan dari pilihan Senator`, {
+        duration: 2000,
+      });
+    } else {
+      // Add to selected
+      const newRank = selectedSenator.length + 1;
+      setSelectedSenator([...selectedSenator, candidateId]);
+      toast.success(`"${candidate.name}" dipilih sebagai preferensi #${newRank} untuk Senator`, {
+        duration: 2000,
+      });
+    }
+  };
+
+  // Get available candidates (not selected yet)
+  const availableKahim = kahimCandidates.filter(c => !selectedKahim.includes(c.id));
+  const availableSenator = senatorCandidates.filter(c => !selectedSenator.includes(c.id));
+
+  // Submit vote
   const handleSubmit = async () => {
-    if (rankedCandidates.length === 0) {
-      toast.error("Pilih setidaknya satu kandidat atau Kotak Kosong!");
+    if (!selectedKahim.length || !selectedSenator.length) {
+      toast.error("Pilihan tidak boleh kosong!");
       return;
     }
 
-    setIsSubmitting(true);
+    // Confirmation
+    const confirmed = window.confirm(
+      "Apakah Anda yakin dengan pilihan Anda?\n\n" +
+      "Ketua Umum:\n" +
+      selectedKahim.map((id, idx) => `${idx + 1}. ${kahimCandidates.find(c => c.id === id)?.name}`).join("\n") +
+      "\n\nSenator:\n" +
+      selectedSenator.map((id, idx) => `${idx + 1}. ${senatorCandidates.find(c => c.id === id)?.name}`).join("\n")
+    );
+
+    if (!confirmed) return;
+
+    setIsLoading(true);
+
     try {
-      // Kirim array ID kandidat yang sudah terurut
-      const rankingIds = rankedCandidates.map((c) => c.id);
-      await onNext(rankingIds);
+      const response = await fetch("/api/vote/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ketuaUmum: selectedKahim,
+          senator: selectedSenator,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Suara berhasil dicatat!");
+        router.push("/vote/success");
+      } else {
+        toast.error(data.error || "Gagal mengirim suara");
+      }
     } catch (error) {
-      toast.error("Gagal menyimpan pilihan.");
-      setIsSubmitting(false);
+      console.error(error);
+      toast.error("Terjadi kesalahan saat mengirim suara");
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  if (isFetching) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-lightsaber-yellow border-t-transparent"></div>
+          <p className="mt-4 text-neutral-cream">Memuat data kandidat...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      
-      {/* --- AREA 1: PILIHAN ANDA (RANKING) --- */}
-      <div className="bg-space-dark/40 border border-gold-sand/30 rounded-xl p-4 md:p-6 sticky top-20 z-10 backdrop-blur-md shadow-2xl">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-death-star text-lightsaber-yellow tracking-widest">
-            URUTAN PILIHAN ANDA
-          </h3>
-          <span className="text-xs text-sand-gold/70 font-tango">
-            Klik untuk membatalkan
-          </span>
+    <div className="container mx-auto max-w-4xl space-y-8 p-4">
+      <div className="text-center space-y-4">
+        <h1 className="font-death-star text-4xl text-lightsaber-yellow md:text-5xl">
+          PEMILIHAN SUARA
+        </h1>
+        <div className="max-w-2xl mx-auto bg-gradient-to-r from-yellow-100 to-orange-100 rounded-xl p-4 border-2 border-yellow-400">
+          <p className="text-lg font-bold text-orange-700 mb-2">
+            📱 Cara Memilih (Tap-to-Select):
+          </p>
+          <div className="text-sm text-gray-700 space-y-1">
+            <p>✅ <strong>Ketuk kandidat</strong> untuk memilih secara berurutan</p>
+            <p>🔄 <strong>Ketuk lagi</strong> kandidat yang sama untuk membatalkan</p>
+            <p>⭐ <strong>Pilihan #1</strong> = Preferensi Tertinggi Anda</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Ketua Umum BPH */}
+      <Card className="border-2 border-lightsaber-yellow bg-space-dark/80 backdrop-blur-sm">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="font-death-star text-2xl text-lightsaber-yellow">
+              Ketua Umum BPH
+            </CardTitle>
+            <div className="rounded-full bg-lightsaber-yellow px-4 py-2">
+              <span className="text-sm font-bold text-vader-black">
+                {selectedKahim.length} / {kahimCandidates.length} dipilih
+              </span>
+            </div>
+          </div>
+          <p className="text-sm text-sand-gold">
+            Ketuk kandidat di bawah untuk memilih
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Area Pilihan Terpilih */}
+          {selectedKahim.length > 0 && (
+            <div className="space-y-3 rounded-xl bg-gradient-to-r from-yellow-100/50 to-orange-100/50 p-4 border-2 border-yellow-300">
+              <div className="flex items-center gap-2">
+                <div className="rounded-full bg-green-500 p-1.5">
+                  <svg className="w-5 h-5 text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-orange-700">
+                  Pilihan Anda
+                </h3>
+                <span className="text-sm text-orange-600 ml-auto">(ketuk untuk membatalkan)</span>
+              </div>
+              <div className="space-y-4">
+                {selectedKahim.map((id, index) => {
+                  const candidate = kahimCandidates.find(c => c.id === id);
+                  return candidate ? (
+                    <CandidateCard
+                      key={id}
+                      candidate={candidate}
+                      rank={index + 1}
+                      onClick={() => handleKahimSelect(id)}
+                      isSelected={true}
+                    />
+                  ) : null;
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Area Kandidat Tersedia */}
+          {availableKahim.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-lg font-bold text-neutral-cream flex items-center gap-2">
+                <span className="text-2xl">👆</span>
+                Kandidat Tersedia - Ketuk untuk Memilih
+              </h3>
+              <div className="space-y-4">
+                {availableKahim.map((candidate) => (
+                  <CandidateCard
+                    key={candidate.id}
+                    candidate={candidate}
+                    onClick={() => handleKahimSelect(candidate.id)}
+                    isSelected={false}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Senator */}
+      <Card className="border-2 border-r2d2-blue bg-space-dark/80 backdrop-blur-sm">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="font-death-star text-2xl text-r2d2-blue">
+              Senator
+            </CardTitle>
+            <div className="rounded-full bg-r2d2-blue px-4 py-2">
+              <span className="text-sm font-bold text-white">
+                {selectedSenator.length} / {senatorCandidates.length} dipilih
+              </span>
+            </div>
+          </div>
+          <p className="text-sm text-sand-gold">
+            Ketuk kandidat di bawah untuk memilih
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Area Pilihan Terpilih */}
+          {selectedSenator.length > 0 && (
+            <div className="space-y-3 rounded-xl bg-gradient-to-r from-blue-100/50 to-cyan-100/50 p-4 border-2 border-blue-300">
+              <div className="flex items-center gap-2">
+                <div className="rounded-full bg-green-500 p-1.5">
+                  <svg className="w-5 h-5 text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-blue-700">
+                  Pilihan Anda
+                </h3>
+                <span className="text-sm text-blue-600 ml-auto">(ketuk untuk membatalkan)</span>
+              </div>
+              <div className="space-y-4">
+                {selectedSenator.map((id, index) => {
+                  const candidate = senatorCandidates.find(c => c.id === id);
+                  return candidate ? (
+                    <CandidateCard
+                      key={id}
+                      candidate={candidate}
+                      rank={index + 1}
+                      onClick={() => handleSenatorSelect(id)}
+                      isSelected={true}
+                    />
+                  ) : null;
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Area Kandidat Tersedia */}
+          {availableSenator.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-lg font-bold text-neutral-cream flex items-center gap-2">
+                <span className="text-2xl">👆</span>
+                Kandidat Tersedia - Ketuk untuk Memilih
+              </h3>
+              <div className="space-y-4">
+                {availableSenator.map((candidate) => (
+                  <CandidateCard
+                    key={candidate.id}
+                    candidate={candidate}
+                    onClick={() => handleSenatorSelect(candidate.id)}
+                    isSelected={false}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Submit Button */}
+      <div className="flex flex-col items-center gap-4">
+        {/* Summary sebelum submit */}
+        <div className="w-full max-w-md bg-gradient-to-r from-green-100 to-blue-100 rounded-xl p-4 border-2 border-green-400">
+          <p className="text-center font-bold text-gray-800 mb-2">Ringkasan Pilihan Anda:</p>
+          <div className="space-y-1 text-sm text-gray-700">
+            <p>✅ Ketua Umum: <strong>{selectedKahim.length}</strong> kandidat dipilih</p>
+            <p>✅ Senator: <strong>{selectedSenator.length}</strong> kandidat dipilih</p>
+          </div>
+          {(!selectedKahim.length || !selectedSenator.length) && (
+            <p className="text-xs text-red-600 mt-2 text-center font-semibold">
+              ⚠️ Harap pilih minimal 1 kandidat untuk setiap posisi
+            </p>
+          )}
         </div>
 
-        {rankedCandidates.length === 0 ? (
-          <div className="border-2 border-dashed border-gray-600 rounded-lg h-32 flex flex-col items-center justify-center text-gray-500 bg-black/20">
-            <ArrowUp className="w-8 h-8 mb-2 opacity-50 animate-bounce" />
-            <p className="font-tango text-sm">Klik kandidat di bawah untuk memilih</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {rankedCandidates.map((candidate, index) => (
-              <div
-                key={candidate.id}
-                onClick={() => handleDeselect(candidate)}
-                className="group flex items-center gap-4 bg-gradient-to-r from-gea-blue to-space-dark p-3 rounded-lg border border-gold-sand/50 cursor-pointer hover:bg-red-900/40 transition-all hover:border-red-500"
-              >
-                {/* Badge Nomor Urut */}
-                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-lightsaber-yellow text-space-dark font-death-star text-xl rounded-full shadow-lg border-2 border-white">
-                  {index + 1}
-                </div>
-
-                {/* Info Kandidat Mini */}
-                <div className="flex-shrink-0 w-12 h-12 relative rounded-full overflow-hidden border border-gray-400">
-                   <Image src={candidate.photoUrl} alt={candidate.name} fill className="object-cover" />
-                </div>
-                
-                <div className="flex-grow">
-                  <h4 className="font-bold text-white text-sm md:text-base uppercase truncate">
-                    {candidate.name}
-                  </h4>
-                  {candidate.hashtag && (
-                    <p className="text-xs text-r2d2-blue">#{candidate.hashtag}</p>
-                  )}
-                </div>
-
-                <div className="mr-2">
-                  <X className="w-5 h-5 text-gray-400 group-hover:text-red-500 transition-colors" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* --- SEPARATOR --- */}
-      <div className="relative flex items-center justify-center py-4">
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
-        <span className="absolute px-4 bg-[#1a1a1a] text-gray-500 text-xs font-tango uppercase tracking-widest">
-          Daftar Kandidat Tersedia
-        </span>
-      </div>
-
-      {/* --- AREA 2: DAFTAR KANDIDAT (AVAILABLE) --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {availableCandidates.map((candidate) => (
-          <div
-            key={candidate.id}
-            onClick={() => handleSelect(candidate)}
-            className="cursor-pointer group relative overflow-hidden rounded-xl bg-space-dark/50 border border-gray-700 hover:border-lightsaber-yellow hover:shadow-[0_0_15px_rgba(227,196,94,0.3)] transition-all duration-200 active:scale-95"
-          >
-            <div className="flex p-4 gap-4 items-center">
-              {/* Foto Besar */}
-              <div className="relative w-20 h-24 flex-shrink-0 rounded-lg overflow-hidden border border-gray-600">
-                <Image
-                  src={candidate.photoUrl}
-                  alt={candidate.name}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-              </div>
-
-              {/* Detail */}
-              <div className="flex flex-col justify-center">
-                <h4 className="text-lg font-bold text-white font-death-star uppercase leading-tight mb-1 group-hover:text-lightsaber-yellow transition-colors">
-                  {candidate.name}
-                </h4>
-                {candidate.major && (
-                   <p className="text-xs text-r2d2-blue font-tango mb-2">
-                     {candidate.major} {candidate.batch}
-                   </p>
-                )}
-                <div className="inline-flex items-center text-xs font-bold text-space-dark bg-gray-200 px-3 py-1 rounded-full w-max group-hover:bg-lightsaber-yellow transition-colors">
-                  PILIH +
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {availableCandidates.length === 0 && (
-            <div className="col-span-full text-center py-8 text-gray-500 italic">
-                Semua kandidat sudah dipilih.
-            </div>
-        )}
-      </div>
-
-      {/* --- TOMBOL AKSI --- */}
-      <div className="pt-6 flex justify-end">
         <Button
           onClick={handleSubmit}
-          disabled={isSubmitting || rankedCandidates.length === 0}
-          className="bg-gradient-to-r from-lightsaber-yellow to-orange-500 text-black font-bold px-8 py-6 rounded-lg text-lg hover:shadow-[0_0_20px_rgba(227,196,94,0.6)] transition-all w-full md:w-auto"
+          disabled={isLoading || !selectedKahim.length || !selectedSenator.length}
+          className="h-14 w-full max-w-md bg-gradient-to-r from-yoda-green to-cyan-saber text-xl font-bold text-vader-black hover:scale-105 hover:shadow-[0_0_30px_rgba(111,195,109,0.8)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Menyimpan...
-            </>
-          ) : isLastStep ? (
-            "Kirim Suara 🚀"
-          ) : (
-            "Lanjut ke Senator 👉"
-          )}
+          {isLoading ? "Mengirim..." : "🗳️ Kirim Suara Sekarang"}
         </Button>
       </div>
-
     </div>
   );
 }
