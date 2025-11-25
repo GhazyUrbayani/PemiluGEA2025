@@ -123,11 +123,16 @@ export default function VoteForm() {
       let kahim: Candidate[] = [];
       let senator: Candidate[] = [];
 
-      if (result.success && result.data) {
-        kahim = result.data.filter((c: Candidate) => c.position === "kahim");
-        senator = result.data.filter((c: Candidate) => c.position === "senator");
-      } else {
-        // Fallback dummy data if API fails
+      // Check both possible response structures
+      const candidateData = result.data || result.candidates || [];
+      
+      if (candidateData.length > 0) {
+        kahim = candidateData.filter((c: Candidate) => c.position === "kahim");
+        senator = candidateData.filter((c: Candidate) => c.position === "senator");
+      }
+      
+      // If no data from API, use fallback dummy data
+      if (kahim.length === 0) {
         kahim = [
           {
             id: "12023026",
@@ -141,6 +146,9 @@ export default function VoteForm() {
             position: "kahim",
           },
         ];
+      }
+      
+      if (senator.length === 0) {
         senator = [
           {
             id: "12023075",
