@@ -16,7 +16,7 @@ interface Candidate {
   batch?: number;
   vision?: string;
   mission?: string;
-  hashtag?: string;
+  hashtag?: string; 
 }
 
 // Komponen Candidate Card untuk Tap-to-Select
@@ -82,10 +82,10 @@ function CandidateCard({
         )}
       </CardHeader>
 
-      <CardContent className={`space-y-3 p-4 ${
+      <CardContent className={`p-4 ${
         isSelected ? 'bg-gradient-to-br from-yellow-50 to-orange-50' : ''
       }`}>
-        <div className="text-center">
+        <div className="text-center mb-3">
           <CardTitle className={`text-xl font-bold transition-colors ${
             isSelected ? 'text-orange-700' : 'text-gray-800'
           }`}>
@@ -98,23 +98,26 @@ function CandidateCard({
           )}
         </div>
 
-        {candidate.vision && (
-          <div>
-            <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary">
-              Visi
-            </h4>
-            <p className="text-xs leading-relaxed text-gray-700">{candidate.vision}</p>
-          </div>
-        )}
+        {/* Scrollable content area untuk visi dan misi */}
+        <div className="max-h-64 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+          {candidate.vision && (
+            <div>
+              <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary sticky top-0 bg-inherit z-10 py-1">
+                Visi
+              </h4>
+              <p className="text-xs leading-relaxed text-gray-700 whitespace-pre-line">{candidate.vision}</p>
+            </div>
+          )}
 
-        {candidate.mission && (
-          <div>
-            <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary">
-              Misi
-            </h4>
-            <p className="text-xs leading-relaxed text-gray-700">{candidate.mission}</p>
-          </div>
-        )}
+          {candidate.mission && (
+            <div>
+              <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary sticky top-0 bg-inherit z-10 py-1">
+                Misi
+              </h4>
+              <p className="text-xs leading-relaxed text-gray-700 whitespace-pre-line">{candidate.mission}</p>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
@@ -162,8 +165,8 @@ export default function VoteForm() {
             photoUrl: "/Davin.png",
             major: "Teknik Geologi",
             batch: 2023,
-            vision: "Mewujudkan GEA yang inklusif, inovatif, dan berdampak bagi mahasiswa Teknik Geologi ITB",
-            mission: "1. Meningkatkan partisipasi aktif anggota dalam kegiatan himpunan\n2. Memperkuat sinergi dengan alumni dan industri\n3. Mengembangkan program pengembangan soft skill dan hard skill",
+            vision: "Mewujudkan HMTG \"GEA\" ITB yang berdikari dan profesional melalui lingkungan yang inklusif dalam rangka mewujudkan Keberdampakan yang Absolut.",
+            mission: "1. Mempersiapkan Anggota HMTG \"GEA\" ITB sebagai calon sarjana dan geologis untuk mewujudkan pribadi yang profesional, cakap, berkarakter dan dapat berdampak bagi lingkungannya.\n\n2. Merancang kaderisasi yang bertujuan untuk mempersiapkan kader untuk menjadi Anggota Biasa HMTG \"GEA\" ITB yang cakap dan berkarakter.\n\n3. Memaksimalkan potensi diri Anggota Biasa HMTG \"GEA\" ITB dalam rangka menjadikan pribadi yang berdampak.\n\n4. Memaksimalkan potensi dan implementasi dari Anggota Biasa HMTG \"GEA\" ITB di bidang keilmuan geologi dan non-geologi untuk mewujudkan keberdampakan yang absolut.\n\n5. Menciptakan lingkungan yang menjunjung tinggi nilai kekeluargaan untuk mewujudkan HMTG \"GEA\" ITB yang inklusif.\n\n6. Mengusahakan pemenuhan kebutuhan dasar Anggota HMTG \"GEA\" ITB untuk mewujudkan kesejahteraan Anggota Biasa HMTG \"GEA\" ITB.\n\n7. Menciptakan citra GEA yang profesional dan bermartabat secara nyata di lingkungan eksternal HMTG \"GEA\" ITB.\n\n8. Merancang sistem kesekretariatan yang terpadu dan transparan bagi Anggota Biasa HMTG \"GEA\" ITB.\n\n9. Merancang pengemasan informasi seputar HMTG \"GEA\" ITB yang informatif dan menarik bagi Anggota Biasa HMTG \"GEA\" ITB serta massa eksternal HMTG \"GEA\" ITB.",
             hashtag: "#GerakBersama",
             position: "kahim",
           },
@@ -178,8 +181,8 @@ export default function VoteForm() {
             photoUrl: "/Albert.png",
             major: "Teknik Geologi",
             batch: 2023,
-            vision: "Menjadi jembatan aspirasi mahasiswa Teknik Geologi di tingkat institut",
-            mission: "1. Menyampaikan aspirasi mahasiswa ke KM ITB\n2. Memperjuangkan kebijakan yang pro-mahasiswa\n3. Transparansi penuh dalam setiap keputusan",
+            vision: "Badan Kesenatoran HMTG \"GEA\" ITB sebagai penyedia wadah aspiratif dan informatif untuk GEA mengetahui dunia dalam langkah menguasai dunia serta bentuk manifestasi suara HMTG \"GEA\" ITB dalam Kongres KM ITB.",
+            mission: "1. Mewujudkan Badan Kesenatoran HMTG \"GEA\" ITB sebagai wadah terbuka yang mampu mendengar, memahami, menghimpun, mengolah, dan menyuarakan aspirasi seluruh anggota biasa HMTG \"GEA\" ITB.\n\n2. Mewujudkan Badan Kesenatoran HMTG \"GEA\" ITB yang informatif dan transparan dalam mencerdaskan anggota biasa HMTG \"GEA\" ITB terhadap isu di KM ITB ataupun Nasional yang dapat mengganggu kehidupan berkemahasiswaan anggota biasa HMTG \"GEA\" ITB.\n\n3. Mewujudkan Badan Kesenatoran HMTG \"GEA\" ITB yang komunikatif dengan lembaga luar dan dalam HMTG \"GEA\" ITB untuk membuka ruang pembelajaran dan perkembangan diri oleh anggotanya dan badan itu sendiri.",
             hashtag: "#SuaraKita",
             position: "senator",
           },
