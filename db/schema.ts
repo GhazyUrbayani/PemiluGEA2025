@@ -1,4 +1,3 @@
-import { relations } from "drizzle-orm";
 import {
   timestamp,
   pgTable,
@@ -59,28 +58,21 @@ export const candidates = pgTable("candidates", {
 });
 
 // ============================================
-// TABEL 4: ADMINS (USER PANITIA)
+// TABEL 4: ADMIN TOKENS (TOKEN PANITIA PERMANEN)
 // ============================================
-// Tabel untuk menyimpan data admin yang bisa akses hasil voting
-export const admins = pgTable("admins", {
-  id: varchar("id", { length: 256 }).primaryKey(),
-  email: varchar("email", { length: 256 }).notNull().unique(),
-  password: text("password").notNull(), // Hashed password
-  name: text("name").notNull(),
-  role: varchar("role", { length: 50 }).default("admin").notNull(), // 'admin' atau 'superadmin'
+// Tabel untuk menyimpan token admin permanen yang bisa akses hasil voting
+// Token disimpan di database (Supabase) bukan di hardcode
+export const adminTokens = pgTable("admin_tokens", {
+  id: varchar("id", { length: 256 }).primaryKey(), // UUID
+  tokenHash: varchar("token_hash", { length: 256 }).notNull().unique(), // Hash dari token admin
+  name: text("name").notNull(), // Nama admin atau deskripsi
+  isActive: boolean("is_active").default(true).notNull(), // Status aktif/nonaktif
   createdAt: timestamp("created_at").defaultNow(),
+  lastUsedAt: timestamp("last_used_at"), // Track kapan terakhir digunakan
 });
 
 // ============================================
 // RELATIONS (Optional untuk Drizzle ORM)
 // ============================================
-export const candidatesRelations = relations(candidates, ({ many }) => ({
-  // Tidak ada relasi langsung ke ballotBox (karena anonim)
-}));
-
-export const voterRegistryRelations = relations(voterRegistry, ({ one }) => ({
-  // Tidak ada relasi langsung ke ballotBox (untuk menjaga anonimitas)
-}));
-
 // Note: BallotBox sengaja TIDAK memiliki relasi ke tabel lain
 // untuk menjaga anonimitas pemilih

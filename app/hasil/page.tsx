@@ -2,37 +2,46 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lock, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 export default function HasilPage() {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const [isVotingClosed] = useState(false); // TODO: Check dari API apakah voting sudah ditutup
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (status === "loading") return;
-    
-    if (!session) {
-      toast.error("Anda harus login sebagai admin untuk melihat hasil");
-      router.push("/auth/sign-in");
-      return;
-    }
+    // Check admin authentication via cookie
+    const checkAdminAuth = async () => {
+      try {
+        const response = await fetch("/api/auth/check-admin", {
+          method: "GET",
+          credentials: "include", // Include cookies
+        });
 
-    // Check if user is admin
-    if (session.user?.role !== "admin") {
-      toast.error("Akses ditolak. Halaman ini hanya untuk panitia.");
-      router.push("/");
-      return;
-    }
+        const data = await response.json();
 
-    setIsAuthorized(true);
-  }, [session, status, router]);
+        if (response.ok && data.isAdmin) {
+          setIsAuthorized(true);
+        } else {
+          toast.error("Anda harus login sebagai admin untuk melihat hasil");
+          router.push("/auth/sign-in");
+        }
+      } catch (error) {
+        console.error("Error checking admin auth:", error);
+        toast.error("Gagal memverifikasi akses");
+        router.push("/auth/sign-in");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  if (status === "loading" || !isAuthorized) {
+    checkAdminAuth();
+  }, [router]);
+
+  if (isLoading || !isAuthorized) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-space-dark to-vader-black">
         <div className="text-center">

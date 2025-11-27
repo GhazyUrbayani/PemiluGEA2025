@@ -57,9 +57,16 @@ export default function HybridLoginForm() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Login berhasil! Mengalihkan ke halaman voting...");
-        // Redirect ke halaman voting
-        window.location.href = "/vote";
+        // Check if login is admin or voter
+        if (data.role === "admin") {
+          toast.success(`Selamat datang, ${data.name}!`);
+          // Redirect admin ke halaman hasil
+          window.location.href = "/hasil";
+        } else {
+          toast.success("Login berhasil! Mengalihkan ke halaman voting...");
+          // Redirect voter ke halaman voting
+          window.location.href = "/vote";
+        }
       } else {
         toast.error(data.message || "Token tidak valid atau sudah digunakan");
       }
@@ -105,14 +112,18 @@ export default function HybridLoginForm() {
         </span>
       </div>
 
-      {/* Opsi 2: Login Offline dengan Token */}
+      {/* Opsi 2: Login dengan Token */}
       <div>
         <h3 className="mb-4 text-xl font-semibold text-gray-800">
-          Untuk Pemilih Offline
+          Login dengan Token
         </h3>
         <p className="mb-4 text-sm text-gray-600">
-          Jika Anda memilih secara offline melalui panitia, gunakan token unik yang diberikan.
+          Gunakan token unik yang diberikan untuk:
         </p>
+        <ul className="mb-4 space-y-1 text-sm text-gray-600">
+          <li>• <strong>Pemilih Offline:</strong> Token voting yang diberikan panitia</li>
+          <li>• <strong>Panitia:</strong> Token admin untuk akses hasil voting</li>
+        </ul>
         <form onSubmit={handleTokenLogin} className="space-y-4">
           <div>
             <Label htmlFor="token" className="text-gray-700">
@@ -121,7 +132,7 @@ export default function HybridLoginForm() {
             <Input
               id="token"
               type="text"
-              placeholder="Masukkan token yang diberikan panitia"
+              placeholder="Masukkan token Anda"
               value={token}
               onChange={(e) => setToken(e.target.value)}
               disabled={isLoading}
@@ -134,7 +145,7 @@ export default function HybridLoginForm() {
             disabled={isLoading || !token.trim()}
             className="w-full bg-pemilu-primary py-6 text-base font-semibold text-gray-800 hover:bg-gea-yellow"
           >
-            {isLoading ? "Memproses..." : "Gunakan Token"}
+            {isLoading ? "Memproses..." : "Login dengan Token"}
           </Button>
         </form>
       </div>
