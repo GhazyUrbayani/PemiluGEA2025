@@ -152,8 +152,96 @@ async function importDPT() {
     let emailErrorCount = 0;
     const tokenOutputs: Array<{ email: string; nama: string; token: string }> = [];
     const emailErrors: Array<{ email: string; error: string }> = [];
+    const totalRows = dptRows.length;
+    const startTime = Date.now();
 
-    for (const row of dptRows) {
+    // Spinner frames
+    const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+    let spinnerIndex = 0;
+
+    // Function to draw progress bar
+    const drawProgressBar = (current: number, total: number, success: number, failed: number, emailSuccess: number, emailFailed: number, currentName?: string) => {
+      const percentage = Math.floor((current / total) * 100);
+      const barLength = 40;
+      const filledLength = Math.floor((percentage / 100) * barLength);
+      const bar = "█".repeat(filledLength) + "░".repeat(barLength - filledLength);
+      
+      // Calculate ETA
+      const elapsed = Date.now() - startTime;
+      const rate = current > 0 ? elapsed / current : 0;
+      const remaining = Math.ceil((total - current) * rate / 1000); // in seconds
+      const etaText = current < total && current > 0 
+        ? `ETA: ${remaining}s` 
+        : current === total 
+        ? `Done in ${Math.ceil(elapsed / 1000)}s`
+        : "Calculating...";
+      
+      // Spinner
+      const spinner = current < total ? spinnerFrames[spinnerIndex % spinnerFrames.length] : "✓";
+      spinnerIndex++;
+      
+      // Clear entire box area
+      const linesToClear = skipEmail ? 6 : 7;
+      
+      // Move cursor up to the start of the box
+      for (let i = 1; i < linesToClear; i++) {
+        process.stdout.write("\x1b[1A"); // Move up
+      }
+      
+      // Clear all lines
+      for (let i = 0; i < linesToClear; i++) {
+        process.stdout.write("\r\x1b[K"); // Clear line
+        if (i < linesToClear - 1) process.stdout.write("\n"); // Move down
+      }
+      
+      // Move cursor back to top
+      for (let i = 1; i < linesToClear; i++) {
+        process.stdout.write("\x1b[1A"); // Move up
+      }
+      
+      console.log(`┌${"─".repeat(70)}┐`);
+      
+      // Line 1: Progress bar with spinner and ETA
+      const line1Content = ` ${spinner} Progress: [${bar}] ${percentage}% | ${etaText}`;
+      const line1Padding = Math.max(0, 70 - line1Content.length);
+      console.log(`│${line1Content}${" ".repeat(line1Padding)}│`);
+      
+      // Line 2: Import statistics
+      const line2Content = ` 📊 Import: ${current}/${total} | ✅ ${success} | ❌ ${failed}`;
+      const line2Padding = Math.max(0, 70 - line2Content.length);
+      console.log(`│${line2Content}${" ".repeat(line2Padding)}│`);
+      
+      // Line 3: Email statistics (only if not skipped)
+      if (!skipEmail) {
+        const line3Content = ` 📧 Email:  Sent ${emailSuccess} | Failed ${emailFailed}`;
+        const line3Padding = Math.max(0, 70 - line3Content.length);
+        console.log(`│${line3Content}${" ".repeat(line3Padding)}│`);
+      }
+      
+      // Line 4: Current processing or status
+      if (currentName && current < total) {
+        const truncatedName = currentName.length > 50 ? currentName.substring(0, 47) + "..." : currentName;
+        const line4Content = ` 👤 Processing: ${truncatedName}`;
+        const line4Padding = Math.max(0, 70 - line4Content.length);
+        console.log(`│${line4Content}${" ".repeat(line4Padding)}│`);
+      } else if (current === total) {
+        const line4Content = ` ✨ Completed!`;
+        const line4Padding = Math.max(0, 70 - line4Content.length);
+        console.log(`│${line4Content}${" ".repeat(line4Padding)}│`);
+      } else {
+        console.log(`│${" ".repeat(70)}│`);
+      }
+      
+      console.log(`└${"─".repeat(70)}┘`);
+    };
+
+    // Initial display
+    const initialLines = skipEmail ? 6 : 7;
+    for (let i = 0; i < initialLines; i++) console.log("");
+    drawProgressBar(0, totalRows, 0, 0, 0, 0);
+
+    for (let i = 0; i < dptRows.length; i++) {
+      const row = dptRows[i];
       try {
         // Generate token (32 bytes = 64 character hex string)
         const token = randomBytes(32).toString("hex");
@@ -178,11 +266,12 @@ async function importDPT() {
         });
 
         successCount++;
-        console.log(`✅ Imported: ${row.email} (${row.nama})`);
+
+        // Update progress bar with current processing
+        drawProgressBar(i + 1, totalRows, successCount, errorCount, emailSuccessCount, emailErrorCount, `${row.nama} (${row.email})`);
 
         // Send email jika tidak skip
         if (!skipEmail && transporter) {
-          console.log(`   📧 Sending email to ${row.email}...`);
           const emailResult = await sendTokenEmail(
             transporter,
             row.email,
@@ -200,15 +289,30 @@ async function importDPT() {
             });
           }
 
+          // Update progress bar after email
+          drawProgressBar(i + 1, totalRows, successCount, errorCount, emailSuccessCount, emailErrorCount, `${row.nama} (${row.email})`);
+
           // Delay antar email (rate limiting)
           await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second
         }
       } catch (error) {
         errorCount++;
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        console.error(`❌ Failed to import ${row.email}: ${errorMessage}`);
+        
+        // Store error for later display
+        emailErrors.push({
+          email: row.email,
+          error: errorMessage,
+        });
+        
+        // Update progress bar
+        drawProgressBar(i + 1, totalRows, successCount, errorCount, emailSuccessCount, emailErrorCount, `${row.nama} (${row.email})`);
       }
     }
+
+    // Final display
+    drawProgressBar(totalRows, totalRows, successCount, errorCount, emailSuccessCount, emailErrorCount);
+    console.log("\n"); // Add space after progress bar completes
 
     // Save tokens to file
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
