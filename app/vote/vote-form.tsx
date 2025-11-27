@@ -75,11 +75,6 @@ function CandidateCard({
             isSelected ? 'scale-110 brightness-110' : 'group-hover:scale-105'
           }`}
         />
-        {candidate.hashtag && (
-          <div className="absolute bottom-4 right-4 rounded-full bg-gea-blue/80 px-4 py-2 backdrop-blur-sm">
-            <p className="text-sm font-bold text-gea-yellow">{candidate.hashtag}</p>
-          </div>
-        )}
       </CardHeader>
 
       {/* Identity Section - Fixed, tidak scroll */}

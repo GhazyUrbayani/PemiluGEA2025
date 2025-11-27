@@ -9,7 +9,6 @@ interface CandidateCardProps {
   batch: number;
   vision: string;
   mission: string;
-  
 }
 
 export default function CandidateCard({
@@ -20,7 +19,6 @@ export default function CandidateCard({
   batch,
   vision,
   mission,
-  hashtag,
 }: CandidateCardProps) {
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-2xl flex flex-col">
@@ -31,11 +29,6 @@ export default function CandidateCard({
           fill
           className="object-contain transition-transform duration-300 group-hover:scale-105"
         />
-        {hashtag && (
-          <div className="absolute bottom-4 right-4 rounded-full bg-gea-blue/80 px-4 py-2 backdrop-blur-sm">
-            <p className="text-sm font-bold text-gea-yellow">{hashtag}</p>
-          </div>
-        )}
       </CardHeader>
 
       {/* Identity Section - Fixed, tidak scroll */}
