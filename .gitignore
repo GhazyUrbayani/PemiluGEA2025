@@ -37,8 +37,9 @@ next-env.d.ts
 
 .envnode_modules/
 .next/
-.env
+.env.*
 .env.local
+.env
 .vscode/
 .DS_Store
 npm-debug.log
