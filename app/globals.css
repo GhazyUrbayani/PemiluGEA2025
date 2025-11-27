@@ -136,27 +136,27 @@ h6 {
   animation: scale-in 0.3s ease-out;
 }
 
-/* Custom scrollbar styles for candidate cards */
-.scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
+/* Custom scrollbar styling */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
 }
 
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: #f1f1f1;
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 10px;
 }
 
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #9ca3af;
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #fbbf24, #f59e0b);
   border-radius: 10px;
 }
 
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #f59e0b, #d97706);
 }
 
 /* Firefox scrollbar */
-.scrollbar-thin {
+.overflow-y-auto {
   scrollbar-width: thin;
-  scrollbar-color: #9ca3af #f1f1f1;
+  scrollbar-color: #fbbf24 rgba(0, 0, 0, 0.05);
 }

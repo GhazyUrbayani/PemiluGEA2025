@@ -23,8 +23,8 @@ export default function CandidateCard({
   hashtag,
 }: CandidateCardProps) {
   return (
-    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-2xl">
-      <CardHeader className="relative h-64 overflow-hidden bg-white p-0">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-2xl flex flex-col h-full">
+      <CardHeader className="relative h-64 overflow-hidden bg-white p-0 flex-shrink-0">
         <Image
           src={photoUrl}
           alt={`Foto ${name}`}
@@ -38,8 +38,8 @@ export default function CandidateCard({
         )}
       </CardHeader>
 
-      <CardContent className="space-y-4 p-6">
-        <div className="text-center">
+      <CardContent className="space-y-4 p-6 overflow-y-auto max-h-[500px] flex-grow">
+        <div className="text-center sticky top-0 bg-white pb-3 z-10">
           <CardTitle className="text-2xl font-bold text-gray-800">
             {name}
           </CardTitle>
@@ -51,21 +51,24 @@ export default function CandidateCard({
           </p>
         </div>
 
-        <div className="space-y-3">
-          <div>
-            <h4 className="mb-2 text-sm font-bold uppercase tracking-wide text-pemilu-primary">
-              Visi
+        <div className="space-y-4">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h4 className="mb-2 text-sm font-bold uppercase tracking-wide text-pemilu-primary flex items-center gap-2">
+              <span className="text-lg">🎯</span> Visi
             </h4>
-            <p className="text-sm leading-relaxed text-gray-700">{vision}</p>
+            <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-line">{vision}</p>
           </div>
 
-          <div>
-            <h4 className="mb-2 text-sm font-bold uppercase tracking-wide text-pemilu-primary">
-              Misi
+          <div className="bg-green-50 p-4 rounded-lg">
+            <h4 className="mb-2 text-sm font-bold uppercase tracking-wide text-pemilu-primary flex items-center gap-2">
+              <span className="text-lg">📋</span> Misi
             </h4>
             <p className="whitespace-pre-line text-sm leading-relaxed text-gray-700">{mission}</p>
           </div>
         </div>
+        
+        {/* Scroll indicator */}
+        <div className="sticky bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
       </CardContent>
     </Card>
   );
