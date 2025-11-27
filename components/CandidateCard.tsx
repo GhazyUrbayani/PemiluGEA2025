@@ -9,7 +9,7 @@ interface CandidateCardProps {
   batch: number;
   vision: string;
   mission: string;
-  hashtag?: string;
+  
 }
 
 export default function CandidateCard({
