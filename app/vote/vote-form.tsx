@@ -64,7 +64,7 @@ function CandidateCard({
         </div>
       )}
       
-      <CardHeader className={`relative h-48 overflow-hidden p-0 ${
+      <CardHeader className={`relative h-48 overflow-hidden p-0 flex-shrink-0 ${
         isSelected ? 'bg-gradient-to-br from-yellow-100 to-orange-100' : 'bg-white'
       }`}>
         <Image
@@ -82,35 +82,41 @@ function CandidateCard({
         )}
       </CardHeader>
 
-      <CardContent className={`space-y-3 p-4 max-h-96 overflow-y-auto ${
-        isSelected ? 'bg-gradient-to-br from-yellow-50 to-orange-50' : ''
+      {/* Identity Section - Fixed, tidak scroll */}
+      <div className={`text-center py-3 px-4 border-b-2 flex-shrink-0 ${
+        isSelected 
+          ? 'bg-gradient-to-r from-yellow-100 to-orange-100 border-orange-200' 
+          : 'bg-white border-gray-100'
       }`}>
-        <div className="text-center sticky top-0 bg-inherit pb-2 z-10">
-          <CardTitle className={`text-xl font-bold transition-colors ${
-            isSelected ? 'text-orange-700' : 'text-gray-800'
-          }`}>
-            {candidate.name}
-          </CardTitle>
-          {candidate.major && candidate.batch && (
-            <p className="text-sm text-gray-600">
-              {candidate.major} &apos;{String(candidate.batch).slice(-2)}
-            </p>
-          )}
-        </div>
+        <CardTitle className={`text-lg font-bold transition-colors ${
+          isSelected ? 'text-orange-700' : 'text-gray-800'
+        }`}>
+          {candidate.name}
+        </CardTitle>
+        {candidate.major && candidate.batch && (
+          <p className="text-xs text-gray-600 mt-0.5">
+            {candidate.major} &apos;{String(candidate.batch).slice(-2)}
+          </p>
+        )}
+      </div>
 
+      {/* Scrollable Content Section */}
+      <CardContent className={`p-4 overflow-y-auto max-h-80 flex-grow space-y-3 ${
+        isSelected ? 'bg-gradient-to-br from-yellow-50 to-orange-50' : 'bg-white'
+      }`}>
         {candidate.vision && (
-          <div>
-            <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary">
-              Visi
+          <div className="bg-blue-50/50 p-3 rounded-lg">
+            <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary flex items-center gap-1">
+              <span>🎯</span> Visi
             </h4>
             <p className="text-xs leading-relaxed text-gray-700 whitespace-pre-line">{candidate.vision}</p>
           </div>
         )}
 
         {candidate.mission && (
-          <div>
-            <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary">
-              Misi
+          <div className="bg-green-50/50 p-3 rounded-lg">
+            <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-pemilu-primary flex items-center gap-1">
+              <span>📋</span> Misi
             </h4>
             <p className="text-xs leading-relaxed text-gray-700 whitespace-pre-line">{candidate.mission}</p>
           </div>
