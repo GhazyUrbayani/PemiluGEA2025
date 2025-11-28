@@ -11,7 +11,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
 import { ballotBox, candidates, voterRegistry, adminTokens } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { decrypt } from "crypto";
 
 interface VoteData {
   ketuaUmum: string[];
