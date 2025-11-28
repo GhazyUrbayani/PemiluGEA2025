@@ -77,32 +77,42 @@ export default function HasilPage() {
     // Check admin authentication via cookie
     const checkAdminAuth = async () => {
       try {
+        console.log("🔐 Checking admin authentication...");
+        
         const response = await fetch("/api/auth/check-admin", {
           method: "GET",
           credentials: "include", // Include cookies
         });
 
         const data = await response.json();
+        console.log("🔐 Auth check response:", data);
 
         if (response.ok && data.isAdmin) {
+          console.log("✅ Admin authenticated!");
           setIsAuthorized(true);
           // Fetch results after authentication
           await fetchResults();
         } else {
+          console.log("❌ Not authenticated as admin");
           toast.error("Anda harus login sebagai admin untuk melihat hasil");
-          router.push("/auth/sign-in");
+          setTimeout(() => {
+            router.push("/auth/sign-in");
+          }, 1000);
         }
       } catch (error) {
-        console.error("Error checking admin auth:", error);
+        console.error("❌ Error checking admin auth:", error);
         toast.error("Gagal memverifikasi akses");
-        router.push("/auth/sign-in");
+        setTimeout(() => {
+          router.push("/auth/sign-in");
+        }, 1000);
       } finally {
         setIsLoading(false);
       }
     };
 
     checkAdminAuth();
-  }, [router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
 
   if (isLoading || !isAuthorized || !resultsData) {
     return (
