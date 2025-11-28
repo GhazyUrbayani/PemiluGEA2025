@@ -45,21 +45,29 @@ export default function HasilPage() {
   const fetchResults = async () => {
     try {
       setIsRefreshing(true);
+      console.log("🔄 Fetching results from API...");
+      
       const response = await fetch("/api/hasil/results", {
         method: "GET",
         credentials: "include",
       });
 
+      console.log("📡 API Response status:", response.status);
+      
       const data = await response.json();
+      console.log("📊 API Response data:", data);
 
       if (response.ok && data.success) {
+        console.log("✅ Results data loaded successfully");
         setResultsData(data.data);
+        toast.success("Data berhasil dimuat!");
       } else {
-        toast.error("Gagal memuat hasil voting");
+        console.error("❌ API returned error:", data.message);
+        toast.error(data.message || "Gagal memuat hasil voting");
       }
     } catch (error) {
-      console.error("Error fetching results:", error);
-      toast.error("Gagal memuat hasil voting");
+      console.error("❌ Error fetching results:", error);
+      toast.error("Gagal memuat hasil voting: " + (error as Error).message);
     } finally {
       setIsRefreshing(false);
     }

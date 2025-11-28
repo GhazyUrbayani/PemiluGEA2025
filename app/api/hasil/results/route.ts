@@ -11,11 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
 import { ballotBox, candidates, voterRegistry, adminTokens } from "@/db/schema";
 import { eq } from "drizzle-orm";
-
-interface VoteData {
-  ketuaUmum: string[];
-  senator: string[];
-}
+import { decryptBallot, type EncryptedBallot } from "@/lib/encryption";
 
 export async function GET(req: NextRequest) {
   try {
@@ -63,7 +59,8 @@ export async function GET(req: NextRequest) {
     for (const ballot of allBallots) {
       try {
         // Decrypt ballot data
-        const decryptedData = ballot.encryptedBallotData as VoteData;
+        const encryptedData = ballot.encryptedBallotData as EncryptedBallot;
+        const decryptedData = decryptBallot(encryptedData);
         
         // Count Ketua Umum votes (first preference only for display)
         if (decryptedData.ketuaUmum && decryptedData.ketuaUmum.length > 0) {
