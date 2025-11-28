@@ -1,10 +1,8 @@
 import { db } from "@/db/drizzle";
-import { admins, voterRegistry } from "@/db/schema";
+import { voterRegistry } from "@/db/schema";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { compare } from "bcrypt";
 import { eq } from "drizzle-orm";
 import type { NextAuthOptions, AuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
 import AzureADProvider from "next-auth/providers/azure-ad";
 import "server-only";
 
@@ -25,52 +23,6 @@ export const authOptions: AuthOptions = {
         },
       },
     }),
-    // Credentials Provider untuk admin
-    CredentialsProvider({
-      id: "admin-credentials",
-      name: "Admin Login",
-      credentials: {
-        username: { label: "username", placeholder: "Username", type: "text" },
-        password: {
-          label: "password",
-          placeholder: "Password",
-          type: "password",
-        },
-      },
-      async authorize(credentials) {
-        if (!credentials || !credentials.username || !credentials.password) {
-          return null;
-        }
-
-        // Find admin in database
-        const existingAdmin = await db.query.admins.findFirst({
-          where: eq(admins.email, credentials.username),
-        });
-
-        if (!existingAdmin || !existingAdmin.password) {
-          return null;
-        }
-
-        // Compare hashed password
-        const passwordCheck = await compare(
-          credentials.password,
-          existingAdmin.password,
-        );
-
-        if (!passwordCheck) {
-          return null;
-        }
-
-        return {
-          id: existingAdmin.id,
-          email: existingAdmin.email,
-          name: existingAdmin.name,
-          role: existingAdmin.role,
-          password: existingAdmin.password,
-          createdAt: existingAdmin.createdAt,
-        };
-      },
-    }),
   ],
   session: {
     strategy: "jwt",
@@ -80,13 +32,9 @@ export const authOptions: AuthOptions = {
     /**
      * Callback signIn: Validasi apakah user berhak untuk login
      * PENTING: Untuk Azure AD, kita cek apakah email ada di DPT dan belum voting
+     * NOTE: Admin authentication sekarang menggunakan token-based system (tidak via NextAuth)
      */
     async signIn({ user, account, profile }) {
-      // Jika login dengan admin credentials, skip validasi DPT
-      if (account?.provider === "admin-credentials") {
-        return true;
-      }
-
       // Jika login dengan Azure AD, validasi di DPT
       if (account?.provider === "azure-ad") {
         const email = user.email || profile?.email;
