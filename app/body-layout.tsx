@@ -30,7 +30,7 @@ function BodyLayout({ children }: { children: React.ReactNode }) {
             />
             
             <p className="font-helvetica-black text-sm text-sand-gold">
-              &copy; 2025 Himpunan Mahasiswa Teknik Geologi ITB
+              &copy; 2025 Himpunan Mahasiswa Teknik Geologi <q>GEA</q> ITB
             </p>
             <p className="mt-2 font-trade-gothic text-xs text-metallic-gray">
               PEMILU GEA 2025 - Star Wars Edition

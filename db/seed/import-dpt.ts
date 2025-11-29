@@ -243,8 +243,9 @@ async function importDPT() {
     for (let i = 0; i < dptRows.length; i++) {
       const row = dptRows[i];
       try {
-        // Generate token (32 bytes = 64 character hex string)
-        const token = randomBytes(32).toString("hex");
+        // Generate token (5-7 digit angka saja untuk voter)
+        const tokenLength = 5 + Math.floor(Math.random() * 3); // Random 5-7 digits
+        const token = Math.floor(Math.random() * Math.pow(10, tokenLength)).toString().padStart(tokenLength, '0');
         const tokenHash = await hash(token, 10);
 
         // Insert to database

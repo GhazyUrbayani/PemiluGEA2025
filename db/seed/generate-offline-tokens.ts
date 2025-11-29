@@ -94,8 +94,9 @@ async function generateOfflineTokens() {
           continue;
         }
 
-        // Generate token
-        const token = generateSecureToken(32); // 64 character hex string
+        // Generate token (5-7 digit angka saja untuk voter)
+        const tokenLength = 5 + Math.floor(Math.random() * 3); // Random 5-7 digits
+        const token = Math.floor(Math.random() * Math.pow(10, tokenLength)).toString().padStart(tokenLength, '0');
         const tokenHash = hashToken(token);
 
         // Update voter registry

@@ -3,7 +3,7 @@ import { voterRegistry } from "@/db/schema";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { eq } from "drizzle-orm";
 import type { NextAuthOptions, AuthOptions } from "next-auth";
-import AzureADProvider from "next-auth/providers/azure-ad";
+import GoogleProvider from "next-auth/providers/google";
 import "server-only";
 
 type Adapter = NextAuthOptions["adapter"];
@@ -12,14 +12,14 @@ export const authOptions: AuthOptions = {
   adapter: DrizzleAdapter(db) as Adapter,
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
-    // Azure AD Provider untuk pemilih online (SSO)
-    AzureADProvider({
-      clientId: process.env.AZURE_AD_CLIENT_ID!,
-      clientSecret: process.env.AZURE_AD_CLIENT_SECRET!,
-      tenantId: process.env.AZURE_AD_TENANT_ID,
+    // Google Provider untuk pemilih online (SSO)
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
           scope: "openid profile email",
+          prompt: "select_account",
         },
       },
     }),
@@ -35,12 +35,12 @@ export const authOptions: AuthOptions = {
      * NOTE: Admin authentication sekarang menggunakan token-based system (tidak via NextAuth)
      */
     async signIn({ user, account, profile }) {
-      // Jika login dengan Azure AD, validasi di DPT
-      if (account?.provider === "azure-ad") {
+      // Jika login dengan Google, validasi di DPT
+      if (account?.provider === "google") {
         const email = user.email || profile?.email;
 
         if (!email) {
-          console.error("Email tidak ditemukan dari Azure AD");
+          console.error("Email tidak ditemukan dari Google");
           return false;
         }
 

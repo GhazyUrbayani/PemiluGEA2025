@@ -203,7 +203,7 @@ export default function HasilPage() {
         <Card className="mb-8 bg-gray-800 border-yellow-500 border-2">
           <CardHeader className="bg-gradient-to-r from-yellow-600 to-orange-600">
             <CardTitle className="text-3xl font-bold text-white flex items-center gap-2">
-              👑 Ketua Umum BPH
+              👑 Calon Ketua Umum BPH
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -265,7 +265,7 @@ export default function HasilPage() {
         <Card className="bg-gray-800 border-blue-500 border-2">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-cyan-600">
             <CardTitle className="text-3xl font-bold text-white flex items-center gap-2">
-              🏛️ Senator
+              🏛️ Calon Senator
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">

@@ -73,7 +73,6 @@ function getTokenEmailHTML(nama: string, token: string): string {
                   📋 Cara Menggunakan Token:
                 </p>
                 <ol style="margin: 0; padding-left: 20px; color: #B0B0B0; font-size: 13px; line-height: 1.8;">
-                  <li>Kunjungi: <a href="https://pemilu-gea-2025.vercel.app/auth/sign-in" style="color: #2BCAE0; text-decoration: none;">pemilu-gea-2025.vercel.app/auth/sign-in</a></li>
                   <li>Pilih tab <strong>"Login dengan Token"</strong></li>
                   <li>Salin dan paste token di atas</li>
                   <li>Klik <strong>"Login"</strong> untuk mulai voting</li>

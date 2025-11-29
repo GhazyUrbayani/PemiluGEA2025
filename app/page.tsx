@@ -160,13 +160,12 @@ export default function Home() {
       <section className="bg-gradient-to-b from-space-dark to-vader-black py-16 text-neutral-cream">
         <div className="container mx-auto px-4">
           <h2 className="mb-8 text-center font-death-star text-4xl text-lightsaber-yellow md:text-5xl">
-            Tentang PEMILU GEA 2025
+            Tentang Pemilu HMTG <q>GEA</q> ITB 2025
           </h2>
           <p className="mx-auto max-w-3xl text-center font-trade-gothic text-lg text-sand-gold">
-            PEMILU GEA 2025 adalah ajang demokrasi tahunan untuk memilih Ketua Umum BPH dan Senator
-            Himpunan Mahasiswa Teknik Geologi ITB periode 2025-2026. Dengan tema Star Wars,
-            kami mengajak seluruh mahasiswa Geologi untuk berpartisipasi dalam menentukan
-            pemimpin masa depan himpunan.
+            Pemilu HMTG <q>GEA</q> ITB 2025 adalah ajang demokrasi tahunan untuk memilih Ketua Umum BPH dan Senator
+            Himpunan Mahasiswa Teknik Geologi ITB Masa Jabatan 2026. Kami mengajak seluruh Massa GEA 
+            untuk berpartisipasi dalam menentukan pemimpin masa depan himpunan.
           </p>
         </div>
       </section>
