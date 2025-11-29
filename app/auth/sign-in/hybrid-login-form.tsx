@@ -90,7 +90,7 @@ export default function HybridLoginForm() {
         <Button
           onClick={handleSSOLogin}
           disabled={isLoading}
-          className="w-full bg-white border-2 border-gray-300 text-gray-800 py-6 text-base hover:bg-gray-50"
+          className="w-full bg-white border-2 border-gray-300 text-blue-600 hover:bg-blue-700 py-6 text-base"
         >
           <svg className="mr-2" width="20" height="20" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -112,15 +112,14 @@ export default function HybridLoginForm() {
 
       {/* Opsi 2: Login dengan Token */}
       <div>
-        <h3 className="mb-4 text-xl font-semibold text-gray-800">
+        <h3 className="mb-4 text-xl font-semibold text-blue-600 hover:bg-blue-700">
           Login dengan Token
         </h3>
         <p className="mb-4 text-sm text-gray-600">
-          Gunakan token unik yang diberikan untuk:
+          Gunakan token unik yang diberikan!
         </p>
         <ul className="mb-4 space-y-1 text-sm text-gray-600">
           <li>• <strong>Pemilih Offline:</strong> Token 5-7 digit angka dari panitia</li>
-          <li>• <strong>Panitia:</strong> Token admin untuk akses hasil voting</li>
         </ul>
         <form onSubmit={handleTokenLogin} className="space-y-4">
           <div>
@@ -130,7 +129,7 @@ export default function HybridLoginForm() {
             <Input
               id="token"
               type="text"
-              placeholder="Contoh: 12345 atau pemilskuy"
+              placeholder="Contoh: 12345"
               value={token}
               onChange={(e) => setToken(e.target.value)}
               disabled={isLoading}
@@ -141,7 +140,7 @@ export default function HybridLoginForm() {
           <Button
             type="submit"
             disabled={isLoading || !token.trim()}
-            className="w-full bg-pemilu-primary py-6 text-base font-semibold text-gray-800 hover:bg-gea-yellow"
+            className="w-full bg-pemilu-primary py-6 text-base font-semibold text-blue-600 hover:bg-gea-yellow"
           >
             {isLoading ? "Memproses..." : "Login dengan Token"}
           </Button>
