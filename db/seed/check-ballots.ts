@@ -6,6 +6,7 @@
 
 import { db } from "../drizzle";
 import { ballotBox, voterRegistry, candidates } from "../schema";
+import { decryptBallot } from "@/lib/encryption";
 
 async function checkBallots() {
   try {
@@ -32,8 +33,17 @@ async function checkBallots() {
 
     // Sample ballot data
     if (ballots.length > 0) {
-      console.log(`\n📋 Sample ballot (first entry):`);
-      console.log(JSON.stringify(ballots[0], null, 2));
+      console.log(`\n📋 Sample ballots (decrypted):`);
+      ballots.forEach((ballot, idx) => {
+        try {
+          const decrypted = decryptBallot(ballot.encryptedBallotData as any);
+          console.log(`\nBallot ${idx + 1}:`);
+          console.log(`  Ketua Umum: ${decrypted.ketuaUmum}`);
+          console.log(`  Senator: ${decrypted.senator}`);
+        } catch (error) {
+          console.log(`\nBallot ${idx + 1}: ❌ Failed to decrypt`);
+        }
+      });
     } else {
       console.log(`\n⚠️  No ballots found in database!`);
     }
