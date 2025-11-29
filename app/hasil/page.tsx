@@ -203,7 +203,7 @@ export default function HasilPage() {
         <Card className="mb-8 bg-gray-800 border-yellow-500 border-2">
           <CardHeader className="bg-gradient-to-r from-yellow-600 to-orange-600">
             <CardTitle className="text-3xl font-bold text-white flex items-center gap-2">
-              👑 Calon Ketua Umum BPH
+              👑 Ketua Umum BPH (Termasuk Kotak Kosong)
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -265,7 +265,7 @@ export default function HasilPage() {
         <Card className="bg-gray-800 border-blue-500 border-2">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-cyan-600">
             <CardTitle className="text-3xl font-bold text-white flex items-center gap-2">
-              🏛️ Calon Senator
+              🏛️ Senator (Termasuk Kotak Kosong)
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -324,9 +324,12 @@ export default function HasilPage() {
         </Card>
 
         {/* Footer Info */}
-        <div className="mt-8 text-center text-gray-400 text-sm">
+        <div className="mt-8 text-center text-gray-400 text-sm space-y-2">
           <p>Last updated: {new Date(resultsData.lastUpdated).toLocaleString("id-ID")}</p>
-          <p className="mt-2">💡 Data ini menampilkan preferensi pertama pemilih (First Choice)</p>
+          <p className="mt-2">💡 Data menampilkan semua pilihan termasuk <strong className="text-yellow-400">Kotak Kosong</strong></p>
+          <p className="text-xs text-gray-500">
+            ✅ Total suara = Jumlah pemilih yang sudah memilih ({statistics.votedCount} suara)
+          </p>
         </div>
       </div>
     </main>
