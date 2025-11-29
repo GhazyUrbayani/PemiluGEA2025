@@ -23,6 +23,7 @@
 3. Klik **Create**
 
 **App Information**:
+
 - App name: `PEMILU GEA 2025`
 - User support email: email panitia
 - Application home page: `http://localhost:3000` (development) atau domain production
@@ -32,10 +33,12 @@
 4. Klik **Save and Continue**
 
 **Scopes** (Step 2):
+
 - Add scope: `email`, `profile`, `openid`
 - Klik **Save and Continue**
 
 **Test users** (Step 3):
+
 - Tambahkan email untuk testing (opsional)
 - Klik **Save and Continue**
 
@@ -49,12 +52,14 @@
 4. Name: `PEMILU GEA 2025 Web Client`
 
 **Authorized JavaScript origins**:
+
 ```
 http://localhost:3000
 https://your-production-domain.com
 ```
 
 **Authorized redirect URIs**:
+
 ```
 http://localhost:3000/api/auth/callback/google
 https://your-production-domain.com/api/auth/callback/google
@@ -66,6 +71,7 @@ https://your-production-domain.com/api/auth/callback/google
 ### 5. Update Environment Variables
 
 Edit `.env.local`:
+
 ```bash
 # Google OAuth (untuk SSO pemilih online)
 GOOGLE_CLIENT_ID="123456789-abcdefghijklmnop.apps.googleusercontent.com"
@@ -86,13 +92,15 @@ npm run dev
 Untuk restrict login hanya untuk email `@students.itb.ac.id`:
 
 **Option 1: Di Google Cloud Console**
+
 - OAuth consent screen → Authorized domains → Tambah `students.itb.ac.id`
 
 **Option 2: Di Code** (sudah implemented di `lib/auth-options.ts`)
+
 ```typescript
 // Validasi email harus dari domain ITB
-if (!email.endsWith('@students.itb.ac.id')) {
-  console.error('Email bukan dari domain ITB');
+if (!email.endsWith("@students.itb.ac.id")) {
+  console.error("Email bukan dari domain ITB");
   return false;
 }
 ```
@@ -100,6 +108,7 @@ if (!email.endsWith('@students.itb.ac.id')) {
 ## 🧪 Testing
 
 ### Test Google Login
+
 1. Buka `http://localhost:3000/auth/sign-in`
 2. Klik **Login dengan Google**
 3. Pilih akun Google ITB (`@students.itb.ac.id`)
@@ -109,26 +118,31 @@ if (!email.endsWith('@students.itb.ac.id')) {
 ### Troubleshooting
 
 **Error: "redirect_uri_mismatch"**
+
 - Periksa redirect URI di Google Console match dengan aplikasi
 - Format harus exact: `http://localhost:3000/api/auth/callback/google`
 
 **Error: "access_denied"**
+
 - User membatalkan authorization
 - Atau email tidak ada di DPT
 
 **Error: "invalid_client"**
+
 - Client ID atau Client Secret salah
 - Periksa .env.local
 
 ## 📊 Token Format
 
 ### Voter Token (Offline)
+
 - **Format**: 5-7 digit angka saja
 - **Contoh**: `12345`, `9876543`, `00123`
 - **Generate**: Otomatis saat import DPT
 - **Hash**: bcrypt dengan salt 10
 
 ### Admin Token
+
 - **Format**: String alphanumeric
 - **Default**: `pemilskuy`
 - **Hash**: bcrypt dengan salt 10

@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import Image from "next/image";
 
 export default function HybridLoginForm() {
   const [token, setToken] = useState("");

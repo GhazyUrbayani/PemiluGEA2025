@@ -86,7 +86,7 @@ function getTokenEmailHTML(nama: string, token: string): string {
                   ⚠️ <strong>PENTING:</strong><br>
                   • Token hanya dapat digunakan <strong>satu kali</strong><br>
                   • Jangan bagikan token kepada orang lain<br>
-                  • Voting ditutup pada: <strong style="color: #E3C45E;">3 Desember 2025, 09:00 WIB</strong><br>
+                  • Voting ditutup pada: <strong style="color: #E3C45E;">5 Desember 2025, 23:59 WIB</strong><br>
                   • Jika token hilang, hubungi panitia
                 </p>
               </div>
@@ -95,7 +95,7 @@ function getTokenEmailHTML(nama: string, token: string): string {
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <a href="https://pemilu-gea-2025.vercel.app/auth/sign-in" 
+                    <a href="https://maps.app.goo.gl/iJXkFA5WTPVeNVio7" 
                        style="display: inline-block; background: linear-gradient(135deg, #6B21A8 0%, #2BCAE0 100%); color: #FFFFFF; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: bold; text-align: center;">
                       🗳️ Mulai Voting Sekarang
                     </a>

@@ -211,43 +211,41 @@ export default function VoteForm() {
     }
   };
 
-  // Handle tap selection for Kahim
+  // Handle tap selection for Kahim (SINGLE CHOICE ONLY)
   const handleKahimSelect = (candidateId: string) => {
     const candidate = kahimCandidates.find(c => c.id === candidateId);
     if (!candidate) return;
 
     if (selectedKahim.includes(candidateId)) {
-      // Remove from selected
-      setSelectedKahim(selectedKahim.filter(id => id !== candidateId));
+      // Remove from selected (unselect)
+      setSelectedKahim([]);
       toast.info(`"${candidate.name}" dibatalkan dari pilihan Ketua Umum`, {
         duration: 2000,
       });
     } else {
-      // Add to selected
-      const newRank = selectedKahim.length + 1;
-      setSelectedKahim([...selectedKahim, candidateId]);
-      toast.success(`"${candidate.name}" dipilih sebagai preferensi #${newRank} untuk Ketua Umum`, {
+      // Replace selection (only 1 allowed)
+      setSelectedKahim([candidateId]);
+      toast.success(`✓ "${candidate.name}" dipilih untuk Ketua Umum`, {
         duration: 2000,
       });
     }
   };
 
-  // Handle tap selection for Senator
+  // Handle tap selection for Senator (SINGLE CHOICE ONLY)
   const handleSenatorSelect = (candidateId: string) => {
     const candidate = senatorCandidates.find(c => c.id === candidateId);
     if (!candidate) return;
 
     if (selectedSenator.includes(candidateId)) {
-      // Remove from selected
-      setSelectedSenator(selectedSenator.filter(id => id !== candidateId));
+      // Remove from selected (unselect)
+      setSelectedSenator([]);
       toast.info(`"${candidate.name}" dibatalkan dari pilihan Senator`, {
         duration: 2000,
       });
     } else {
-      // Add to selected
-      const newRank = selectedSenator.length + 1;
-      setSelectedSenator([...selectedSenator, candidateId]);
-      toast.success(`"${candidate.name}" dipilih sebagai preferensi #${newRank} untuk Senator`, {
+      // Replace selection (only 1 allowed)
+      setSelectedSenator([candidateId]);
+      toast.success(`✓ "${candidate.name}" dipilih untuk Senator`, {
         duration: 2000,
       });
     }
@@ -265,12 +263,14 @@ export default function VoteForm() {
     }
 
     // Confirmation
+    const kahimChoice = kahimCandidates.find(c => c.id === selectedKahim[0])?.name || "Tidak dipilih";
+    const senatorChoice = senatorCandidates.find(c => c.id === selectedSenator[0])?.name || "Tidak dipilih";
+    
     const confirmed = window.confirm(
       "Apakah Anda yakin dengan pilihan Anda?\n\n" +
-      "Ketua Umum:\n" +
-      selectedKahim.map((id, idx) => `${idx + 1}. ${kahimCandidates.find(c => c.id === id)?.name}`).join("\n") +
-      "\n\nSenator:\n" +
-      selectedSenator.map((id, idx) => `${idx + 1}. ${senatorCandidates.find(c => c.id === id)?.name}`).join("\n")
+      "Ketua Umum: " + kahimChoice + "\n" +
+      "Senator: " + senatorChoice + "\n\n" +
+      "⚠️ PILIHAN ANDA TIDAK DAPAT DIUBAH setelah submit!"
     );
 
     if (!confirmed) return;
@@ -322,12 +322,13 @@ export default function VoteForm() {
         </h1>
         <div className="max-w-2xl mx-auto bg-gradient-to-r from-yellow-100 to-orange-100 rounded-xl p-4 border-2 border-yellow-400">
           <p className="text-lg font-bold text-orange-700 mb-2">
-            📱 Cara Memilih (Tap-to-Select):
+            📱 Cara Memilih (Single Choice):
           </p>
           <div className="text-sm text-gray-700 space-y-1">
-            <p>✅ <strong>Ketuk kandidat</strong> untuk memilih secara berurutan</p>
-            <p>🔄 <strong>Ketuk lagi</strong> kandidat yang sama untuk membatalkan</p>
-            <p>⭐ <strong>Pilihan #1</strong> = Preferensi Tertinggi Anda</p>
+            <p>✅ <strong>Pilih 1 kandidat</strong> untuk Ketua Umum</p>
+            <p>✅ <strong>Pilih 1 kandidat</strong> untuk Senator</p>
+            <p>🔄 <strong>Ketuk lagi</strong> untuk ganti pilihan</p>
+            <p>⚠️ <strong>Boleh memilih Kotak Kosong</strong> jika tidak ingin memilih kandidat</p>
           </div>
         </div>
       </div>
@@ -341,7 +342,7 @@ export default function VoteForm() {
             </CardTitle>
             <div className="rounded-full bg-lightsaber-yellow px-4 py-2">
               <span className="text-sm font-bold text-vader-black">
-                {selectedKahim.length} / {kahimCandidates.length} dipilih
+                {selectedKahim.length > 0 ? "✓ Sudah dipilih" : "Belum dipilih"}
               </span>
             </div>
           </div>
@@ -412,12 +413,12 @@ export default function VoteForm() {
             </CardTitle>
             <div className="rounded-full bg-r2d2-blue px-4 py-2">
               <span className="text-sm font-bold text-white">
-                {selectedSenator.length} / {senatorCandidates.length} dipilih
+                {selectedSenator.length > 0 ? "✓ Sudah dipilih" : "Belum dipilih"}
               </span>
             </div>
           </div>
           <p className="text-sm text-sand-gold">
-            Ketuk kandidat di bawah untuk memilih
+            Pilih 1 kandidat atau Kotak Kosong
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -479,13 +480,23 @@ export default function VoteForm() {
         {/* Summary sebelum submit */}
         <div className="w-full max-w-md bg-gradient-to-r from-green-100 to-blue-100 rounded-xl p-4 border-2 border-green-400">
           <p className="text-center font-bold text-gray-800 mb-2">Ringkasan Pilihan Anda:</p>
-          <div className="space-y-1 text-sm text-gray-700">
-            <p>✅ Ketua Umum: <strong>{selectedKahim.length}</strong> kandidat dipilih</p>
-            <p>✅ Senator: <strong>{selectedSenator.length}</strong> kandidat dipilih</p>
+          <div className="space-y-2 text-sm text-gray-700">
+            <p>
+              🏛️ <strong>Ketua Umum:</strong>{" "}
+              {selectedKahim.length > 0 
+                ? kahimCandidates.find(c => c.id === selectedKahim[0])?.name 
+                : "Belum dipilih"}
+            </p>
+            <p>
+              👥 <strong>Senator:</strong>{" "}
+              {selectedSenator.length > 0 
+                ? senatorCandidates.find(c => c.id === selectedSenator[0])?.name 
+                : "Belum dipilih"}
+            </p>
           </div>
           {(!selectedKahim.length || !selectedSenator.length) && (
             <p className="text-xs text-red-600 mt-2 text-center font-semibold">
-              ⚠️ Harap pilih minimal 1 kandidat untuk setiap posisi
+              ⚠️ Harap pilih 1 kandidat untuk setiap posisi
             </p>
           )}
         </div>
