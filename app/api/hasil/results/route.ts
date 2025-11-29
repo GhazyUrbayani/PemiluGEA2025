@@ -79,17 +79,17 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Prepare candidate results with vote counts
+    // Prepare candidate results with vote counts (INCLUDE KOTAK KOSONG)
     const kahimResults = allCandidates
       .filter(c => c.position === "kahim")
       .map(candidate => ({
         id: candidate.id,
         name: candidate.name,
-        photoUrl: candidate.photoUrl,
-        major: candidate.major,
-        batch: candidate.batch,
+        photoUrl: candidate.photoUrl || "/logos/pemilu logo fix.png",
+        major: candidate.major || "",
+        batch: candidate.batch || 0,
         votes: kahimVotes[candidate.id] || 0,
-        percentage: totalVoters > 0 
+        percentage: votedCount > 0 
           ? ((kahimVotes[candidate.id] || 0) / votedCount * 100).toFixed(1)
           : "0.0"
       }))
@@ -100,11 +100,11 @@ export async function GET(req: NextRequest) {
       .map(candidate => ({
         id: candidate.id,
         name: candidate.name,
-        photoUrl: candidate.photoUrl,
-        major: candidate.major,
-        batch: candidate.batch,
+        photoUrl: candidate.photoUrl || "/logos/pemilu logo fix.png",
+        major: candidate.major || "",
+        batch: candidate.batch || 0,
         votes: senatorVotes[candidate.id] || 0,
-        percentage: totalVoters > 0
+        percentage: votedCount > 0
           ? ((senatorVotes[candidate.id] || 0) / votedCount * 100).toFixed(1)
           : "0.0"
       }))

@@ -203,7 +203,7 @@ export default function HasilPage() {
         <Card className="mb-8 bg-gray-800 border-yellow-500 border-2">
           <CardHeader className="bg-gradient-to-r from-yellow-600 to-orange-600">
             <CardTitle className="text-3xl font-bold text-white flex items-center gap-2">
-              👑 Ketua Umum BPH
+              👑 Calon Ketua Umum BPH
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -244,7 +244,9 @@ export default function HasilPage() {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-bold text-white text-lg">{candidate.name}</h3>
-                        <p className="text-gray-300 text-sm">{candidate.major} &apos;{String(candidate.batch).slice(-2)}</p>
+                        {candidate.major && candidate.batch > 0 && (
+                          <p className="text-gray-300 text-sm">{candidate.major} &apos;{String(candidate.batch).slice(-2)}</p>
+                        )}
                         <div className="mt-2 flex items-center gap-2">
                           <span className="text-4xl font-bold text-yellow-400">{candidate.votes}</span>
                           <span className="text-gray-400">votes</span>
@@ -265,7 +267,7 @@ export default function HasilPage() {
         <Card className="bg-gray-800 border-blue-500 border-2">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-cyan-600">
             <CardTitle className="text-3xl font-bold text-white flex items-center gap-2">
-              🏛️ Senator
+              🏛️ Calon Senator
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -306,7 +308,9 @@ export default function HasilPage() {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-bold text-white text-lg">{candidate.name}</h3>
-                        <p className="text-gray-300 text-sm">{candidate.major} &apos;{String(candidate.batch).slice(-2)}</p>
+                        {candidate.major && candidate.batch > 0 && (
+                          <p className="text-gray-300 text-sm">{candidate.major} &apos;{String(candidate.batch).slice(-2)}</p>
+                        )}
                         <div className="mt-2 flex items-center gap-2">
                           <span className="text-4xl font-bold text-blue-400">{candidate.votes}</span>
                           <span className="text-gray-400">votes</span>
@@ -326,8 +330,7 @@ export default function HasilPage() {
         {/* Footer Info */}
         <div className="mt-8 text-center text-gray-400 text-sm">
           <p>Last updated: {new Date(resultsData.lastUpdated).toLocaleString("id-ID")}</p>
-          <p className="mt-2">💡 Data ini menampilkan pilihan pemilih (Single Choice Voting)</p>
-          <p className="mt-1">📊 Kotak Kosong ditampilkan untuk transparansi hasil pemilihan</p>
+          <p className="mt-2">💡 Data ini menampilkan preferensi pertama pemilih (First Choice)</p>
         </div>
       </div>
     </main>
