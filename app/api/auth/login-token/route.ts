@@ -1,11 +1,3 @@
-/**
- * API Route: /api/auth/login-token
- * 
- * Endpoint untuk validasi token dan login:
- * 1. Admin token (untuk akses hasil voting)
- * 2. Voter token (untuk pemilih offline)
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
 import { voterRegistry, adminTokens } from "@/db/schema";
@@ -17,7 +9,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { token } = body;
 
-    // Validate input
     if (!token || typeof token !== "string") {
       return NextResponse.json(
         { success: false, message: "Token tidak valid" },
@@ -25,7 +16,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // STEP 1: Check if token is an admin token
     const adminTokensList = await db.query.adminTokens.findMany({
       where: eq(adminTokens.isActive, true),
     });
@@ -33,13 +23,11 @@ export async function POST(req: NextRequest) {
     for (const adminToken of adminTokensList) {
       const isAdminMatch = await compare(token, adminToken.tokenHash);
       if (isAdminMatch) {
-        // Update last used timestamp
         await db
           .update(adminTokens)
           .set({ lastUsedAt: new Date() })
           .where(eq(adminTokens.id, adminToken.id));
 
-        // Create admin session response
         const response = NextResponse.json({
           success: true,
           message: "Login admin berhasil",
@@ -47,12 +35,11 @@ export async function POST(req: NextRequest) {
           name: adminToken.name,
         });
 
-        // Set admin session cookies
         response.cookies.set("admin-session", adminToken.id, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
-          maxAge: 60 * 60 * 8, // 8 hours for admin
+          maxAge: 60 * 60 * 8,
           path: "/",
         });
 
@@ -68,7 +55,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // STEP 2: Check if token is a voter token (offline voting)
     const voters = await db.query.voterRegistry.findMany({
       where: eq(voterRegistry.voteMethod, "offline"),
     });
@@ -91,7 +77,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check eligibility
     if (!matchedVoter.isEligible) {
       return NextResponse.json(
         { success: false, message: "Anda tidak memiliki hak untuk memilih" },
@@ -99,7 +84,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if already voted
     if (matchedVoter.hasVoted) {
       return NextResponse.json(
         { success: false, message: "Token sudah digunakan untuk voting" },
@@ -107,7 +91,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create voter session response
     const response = NextResponse.json({
       success: true,
       message: "Login berhasil",
@@ -116,12 +99,11 @@ export async function POST(req: NextRequest) {
       nim: matchedVoter.nim,
     });
 
-    // Set voter session cookies
-    response.cookies.set("voter-session", matchedVoter.email, {
+    response.cookies.set("voter-session", matchedVoter.nim, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60 * 2, // 2 hours for voter
+      maxAge: 60 * 60 * 2,
       path: "/",
     });
 

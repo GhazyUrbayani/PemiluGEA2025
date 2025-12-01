@@ -1,9 +1,6 @@
 import { db } from "@/db/drizzle";
-import { voterRegistry } from "@/db/schema";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { eq } from "drizzle-orm";
 import type { NextAuthOptions, AuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
 import "server-only";
 
 type Adapter = NextAuthOptions["adapter"];
@@ -11,89 +8,27 @@ type Adapter = NextAuthOptions["adapter"];
 export const authOptions: AuthOptions = {
   adapter: DrizzleAdapter(db) as Adapter,
   secret: process.env.NEXTAUTH_SECRET,
-  providers: [
-    // Google Provider untuk pemilih online (SSO)
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          scope: "openid profile email",
-          prompt: "select_account",
-        },
-      },
-    }),
-  ],
+  providers: [],
   session: {
     strategy: "jwt",
-    maxAge: 3600, // 1 jam (sesuai dengan durasi voting session)
+    maxAge: 3600,
   },
   callbacks: {
-    /**
-     * Callback signIn: Validasi apakah user berhak untuk login
-     * PENTING: Untuk Azure AD, kita cek apakah email ada di DPT dan belum voting
-     * NOTE: Admin authentication sekarang menggunakan token-based system (tidak via NextAuth)
-     */
-    async signIn({ user, account, profile }) {
-      // Jika login dengan Google, validasi di DPT
-      if (account?.provider === "google") {
-        const email = user.email || profile?.email;
-
-        if (!email) {
-          console.error("Email tidak ditemukan dari Google");
-          return false;
-        }
-
-        // Cek apakah email ada di Voter Registry (DPT)
-        const voter = await db.query.voterRegistry.findFirst({
-          where: eq(voterRegistry.email, email as string),
-        });
-
-        // Jika tidak ada di DPT
-        if (!voter) {
-          console.error(`Email ${email} tidak terdaftar di DPT`);
-          return "/auth/sign-in?error=NotInDPT";
-        }
-
-        // Jika tidak eligible
-        if (!voter.isEligible) {
-          console.error(`Email ${email} tidak eligible untuk voting`);
-          return "/auth/sign-in?error=NotEligible";
-        }
-
-        // Jika sudah voting
-        if (voter.hasVoted) {
-          console.error(`Email ${email} sudah melakukan voting`);
-          return "/auth/sign-in?error=AlreadyVoted";
-        }
-
-        // User valid, allowed to sign in
-        return true;
-      }
-
+    async signIn() {
       return true;
     },
 
-    async jwt({ token, user, account, profile }) {
-      // Initial sign in
+    async jwt({ token, user }) {
       if (user) {
         token.email = user.email;
         token.name = user.name;
         token.role = (user as { role?: string }).role || "voter";
       }
 
-      // Untuk Azure AD, simpan email dari profile
-      if (account?.provider === "azure-ad" && profile) {
-        token.email = profile.email || user.email;
-        token.name = profile.name || user.name;
-        token.role = "voter";
-      }
-
       return token;
     },
 
     async session({ session, token }) {
-      // Tambahkan data dari token ke session
       session.user = {
         email: token.email as string,
         name: token.name as string,

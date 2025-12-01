@@ -19,7 +19,6 @@ interface Candidate {
    
 }
 
-// Komponen Candidate Card untuk Tap-to-Select
 function CandidateCard({ 
   candidate, 
   rank, 
@@ -40,7 +39,6 @@ function CandidateCard({
           : 'hover:shadow-xl hover:scale-[1.02] opacity-70 hover:opacity-100 hover:ring-2 hover:ring-gray-300 active:scale-95'
       }`}
     >
-      {/* Tap indicator untuk card yang belum dipilih */}
       {!isSelected && (
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/5 z-20">
           <div className="bg-white/90 rounded-full px-6 py-3 shadow-lg">
@@ -48,14 +46,12 @@ function CandidateCard({
           </div>
         </div>
       )}
-      {/* Badge Pilihan dengan animasi pop */}
       {rank && (
         <div className="absolute right-2 top-2 z-10 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 px-5 py-2.5 text-base font-extrabold text-white shadow-2xl animate-bounce-subtle border-2 border-white">
           ✓ Pilihan #{rank}
         </div>
       )}
       
-      {/* Checkmark besar di pojok kiri atas untuk card terpilih */}
       {isSelected && (
         <div className="absolute left-2 top-2 z-10 rounded-full bg-green-500 p-2 shadow-xl animate-scale-in">
           <svg className="w-6 h-6 text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,7 +73,6 @@ function CandidateCard({
         />
       </CardHeader>
 
-      {/* Identity Section - Fixed, tidak scroll */}
       <div className={`text-center py-3 px-4 border-b-2 flex-shrink-0 ${
         isSelected 
           ? 'bg-gradient-to-r from-yellow-100 to-orange-100 border-orange-200' 
@@ -95,7 +90,6 @@ function CandidateCard({
         )}
       </div>
 
-      {/* Scrollable Content Section */}
       <CardContent className={`p-4 overflow-y-auto max-h-80 flex-grow space-y-3 ${
         isSelected ? 'bg-gradient-to-br from-yellow-50 to-orange-50' : 'bg-white'
       }`}>
@@ -128,12 +122,9 @@ export default function VoteForm() {
 
   const [kahimCandidates, setKahimCandidates] = useState<Candidate[]>([]);
   const [senatorCandidates, setSenatorCandidates] = useState<Candidate[]>([]);
-
-  // State untuk pilihan terpilih (berurutan)
   const [selectedKahim, setSelectedKahim] = useState<string[]>([]);
   const [selectedSenator, setSelectedSenator] = useState<string[]>([]);
 
-  // Fetch candidates
   useEffect(() => {
     fetchCandidates();
   }, []);
@@ -146,7 +137,6 @@ export default function VoteForm() {
       let kahim: Candidate[] = [];
       let senator: Candidate[] = [];
 
-      // Check both possible response structures
       const candidateData = result.data || result.candidates || [];
       
       if (candidateData.length > 0) {
@@ -154,7 +144,6 @@ export default function VoteForm() {
         senator = candidateData.filter((c: Candidate) => c.position === "senator");
       }
       
-      // If no data from API, use fallback dummy data
       if (kahim.length === 0) {
         kahim = [
           {
@@ -187,7 +176,6 @@ export default function VoteForm() {
         ];
       }
 
-      // Add Kotak Kosong
       kahim.push({
         id: "KOTAK_KOSONG_KAHIM",
         name: "Kotak Kosong",
@@ -217,13 +205,11 @@ export default function VoteForm() {
     if (!candidate) return;
 
     if (selectedKahim.includes(candidateId)) {
-      // Remove from selected (unselect)
       setSelectedKahim([]);
       toast.info(`"${candidate.name}" dibatalkan dari pilihan Ketua Umum`, {
         duration: 2000,
       });
     } else {
-      // Replace selection (only 1 allowed)
       setSelectedKahim([candidateId]);
       toast.success(`✓ "${candidate.name}" dipilih untuk Ketua Umum`, {
         duration: 2000,
@@ -231,19 +217,16 @@ export default function VoteForm() {
     }
   };
 
-  // Handle tap selection for Senator (SINGLE CHOICE ONLY)
   const handleSenatorSelect = (candidateId: string) => {
     const candidate = senatorCandidates.find(c => c.id === candidateId);
     if (!candidate) return;
 
     if (selectedSenator.includes(candidateId)) {
-      // Remove from selected (unselect)
       setSelectedSenator([]);
       toast.info(`"${candidate.name}" dibatalkan dari pilihan Senator`, {
         duration: 2000,
       });
     } else {
-      // Replace selection (only 1 allowed)
       setSelectedSenator([candidateId]);
       toast.success(`✓ "${candidate.name}" dipilih untuk Senator`, {
         duration: 2000,
@@ -251,18 +234,15 @@ export default function VoteForm() {
     }
   };
 
-  // Get available candidates (not selected yet)
   const availableKahim = kahimCandidates.filter(c => !selectedKahim.includes(c.id));
   const availableSenator = senatorCandidates.filter(c => !selectedSenator.includes(c.id));
 
-  // Submit vote
   const handleSubmit = async () => {
     if (!selectedKahim.length || !selectedSenator.length) {
       toast.error("Pilihan tidak boleh kosong!");
       return;
     }
 
-    // Confirmation
     const kahimChoice = kahimCandidates.find(c => c.id === selectedKahim[0])?.name || "Tidak dipilih";
     const senatorChoice = senatorCandidates.find(c => c.id === selectedSenator[0])?.name || "Tidak dipilih";
     

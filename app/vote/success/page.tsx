@@ -7,7 +7,6 @@ import { CheckCircle } from "lucide-react";
 
 export default function VoteSuccessPage() {
   useEffect(() => {
-    // Disable back button
     window.history.pushState(null, "", window.location.href);
     window.onpopstate = function () {
       window.history.pushState(null, "", window.location.href);

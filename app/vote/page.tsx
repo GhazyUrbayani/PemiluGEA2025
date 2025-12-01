@@ -11,14 +11,9 @@ function Page() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    checkAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const checkAuth = async () => {
+    const checkAuth = async () => {
     setIsLoading(true);
     try {
-      // 1. Check NextAuth session (for online voters)
       const sessionRes = await fetch("/api/auth/session");
       const session = await sessionRes.json();
 
@@ -40,7 +35,6 @@ function Page() {
         }
       }
 
-      // 2. Check for offline voter session cookie
       const offlineSessionRes = await fetch("/api/auth/session-check");
       const offlineSession = await offlineSessionRes.json();
 
@@ -50,7 +44,6 @@ function Page() {
         return;
       }
 
-      // 3. If no session found, redirect to login
       toast.error("Silakan login terlebih dahulu untuk melakukan voting");
       router.push("/auth/sign-in");
     } catch (error) {
@@ -60,7 +53,10 @@ function Page() {
     } finally {
       setIsLoading(false);
     }
-  };
+    };
+
+    checkAuth();
+  }, [router]);
 
   if (isLoading) {
     return (
@@ -74,7 +70,7 @@ function Page() {
   }
 
   if (!isAuthenticated) {
-    return null; // Will redirect
+    return null;
   }
 
   return (
