@@ -1,9 +1,3 @@
-/**
- * Script: Check Ballots
- * 
- * Script untuk cek jumlah ballot yang ada di database
- */
-
 import { db } from "../drizzle";
 import { ballotBox, voterRegistry, candidates } from "../schema";
 import { decryptBallot } from "@/lib/encryption";

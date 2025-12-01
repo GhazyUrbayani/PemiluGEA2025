@@ -1,9 +1,3 @@
-/**
- * Script: Apply Kotak Kosong Migration to Production
- * 
- * This script adds Kotak Kosong candidates to the production database
- */
-
 import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";

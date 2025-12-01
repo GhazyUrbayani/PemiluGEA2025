@@ -133,14 +133,6 @@ export function runIRV(
   throw new Error("IRV calculation did not produce a winner");
 }
 
-/**
- * Dekripsi dan jalankan IRV untuk semua ballot
- * 
- * @param encryptedBallots - Array ballot terenkripsi dari database
- * @param candidateIdsKahim - ID kandidat Ketua Umum (termasuk KOTAK_KOSONG)
- * @param candidateIdsSenator - ID kandidat Senator (termasuk KOTAK_KOSONG)
- * @returns Hasil IRV untuk kedua posisi
- */
 export async function calculateElectionResults(
   encryptedBallots: { encryptedBallotData: unknown }[],
   candidateIdsKahim: string[],
@@ -175,9 +167,6 @@ export async function calculateElectionResults(
   };
 }
 
-/**
- * Helper function: Format hasil IRV untuk display
- */
 export function formatIRVResults(result: IRVResult): string {
   let output = `=== Hasil IRV ===\n`;
   output += `Total Ballot: ${result.totalBallots}\n`;

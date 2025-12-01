@@ -1,12 +1,3 @@
-/**
- * db/seed/clear-dpt.ts
- * 
- * Script untuk clear semua data DPT dari database
- * HATI-HATI: Ini akan menghapus SEMUA voter registry!
- * 
- * Jalankan: npx tsx db/seed/clear-dpt.ts
- */
-
 import { db } from "../drizzle";
 import { voterRegistry } from "../schema";
 

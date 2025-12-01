@@ -1,10 +1,3 @@
-/**
- * API Route: /api/auth/check-admin
- * 
- * Endpoint untuk verifikasi apakah user saat ini adalah admin
- * berdasarkan cookie session
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
 import { adminTokens } from "@/db/schema";

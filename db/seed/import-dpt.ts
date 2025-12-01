@@ -69,9 +69,6 @@ function parseCSV(filePath: string): DPTRow[] {
   return rows;
 }
 
-/**
- * Import DPT ke database dengan auto-generate token + kirim email
- */
 async function importDPT() {
   const args = process.argv.slice(2);
 

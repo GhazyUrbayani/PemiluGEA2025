@@ -1,9 +1,3 @@
-/**
- * Test Script: Voter Token Generation
- * 
- * Test generate token 5-7 digit angka untuk voter
- */
-
 function generateVoterToken(): string {
   const tokenLength = 5 + Math.floor(Math.random() * 3); // Random 5-7 digits
   const token = Math.floor(Math.random() * Math.pow(10, tokenLength)).toString().padStart(tokenLength, '0');

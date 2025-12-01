@@ -1,11 +1,3 @@
-/**
- * Apply Migration: Drop admins table and create admin_tokens table
- * 
- * Script untuk apply migration secara manual ke database Supabase.
- * 
- * Usage: npx tsx db/migrations/apply-migration.ts
- */
-
 import postgres from "postgres";
 import { config } from "dotenv";
 import * as fs from "fs";

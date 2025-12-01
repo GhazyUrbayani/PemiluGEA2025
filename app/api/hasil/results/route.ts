@@ -1,12 +1,3 @@
-/**
- * API Route: /api/hasil/results
- * 
- * Endpoint untuk mendapatkan hasil voting real-time
- * - Menghitung total votes dari ballot_box
- * - Menampilkan jumlah vote untuk setiap kandidat
- * - Hanya bisa diakses oleh admin (check admin session)
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
 import { adminTokens } from "@/db/schema";

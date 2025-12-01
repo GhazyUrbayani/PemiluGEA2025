@@ -1,11 +1,3 @@
-/**
- * db/seed/update-candidates.ts
- * 
- * Script untuk UPDATE data kandidat yang sudah ada di database dengan visi misi lengkap
- * 
- * Jalankan dengan: npx tsx db/seed/update-candidates.ts
- */
-
 import { db } from "../drizzle";
 import { candidates } from "../schema";
 import { eq } from "drizzle-orm";

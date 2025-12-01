@@ -1,18 +1,8 @@
-/**
- * lib/send-token-email.ts
- * 
- * Service untuk mengirim token voting via email
- * Menggunakan nodemailer dengan SMTP Gmail
- */
-
 import nodemailer, { Transporter } from "nodemailer";
 import { config } from "dotenv";
 
 config({ path: ".env.local" });
 
-/**
- * HTML Template untuk email token
- */
 function getTokenEmailHTML(nama: string, token: string): string {
   return `
 <!DOCTYPE html>
@@ -129,9 +119,6 @@ function getTokenEmailHTML(nama: string, token: string): string {
   `.trim();
 }
 
-/**
- * Plain text version (fallback)
- */
 function getTokenEmailText(nama: string, token: string): string {
   return `
 PEMILU GEA 2025 - Token Voting
@@ -162,9 +149,6 @@ WhatsApp: +62 813-1576-3302
   `.trim();
 }
 
-/**
- * Create SMTP transporter
- */
 export function createEmailTransporter(): Transporter {
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -179,9 +163,6 @@ export function createEmailTransporter(): Transporter {
   return transporter;
 }
 
-/**
- * Send token email dengan retry mechanism
- */
 export async function sendTokenEmail(
   transporter: Transporter,
   email: string,
@@ -218,9 +199,6 @@ export async function sendTokenEmail(
   return { success: false, error: "Unknown error" };
 }
 
-/**
- * Verify SMTP connection
- */
 export async function verifyEmailConnection(transporter: Transporter): Promise<boolean> {
   return new Promise((resolve) => {
     transporter.verify((error, _success) => {

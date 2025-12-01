@@ -1,12 +1,3 @@
-/**
- * Test Script: Admin Authentication Flow
- * 
- * Script untuk test flow authentication admin:
- * 1. Login dengan token "pemilskuy"
- * 2. Verify admin session cookie
- * 3. Check access to hasil page
- */
-
 import { db } from "../drizzle";
 import { adminTokens } from "../schema";
 import { compare } from "bcrypt";

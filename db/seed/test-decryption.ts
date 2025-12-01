@@ -1,9 +1,3 @@
-/**
- * Script: Test Ballot Decryption
- * 
- * Script untuk test bahwa decryption ballot berfungsi dengan baik
- */
-
 import { db } from "../drizzle";
 import { ballotBox } from "../schema";
 import { decryptBallot, type EncryptedBallot } from "../../lib/encryption";

@@ -1,21 +1,3 @@
-/**
- * db/seed/generate-offline-tokens.ts
- * 
- * Script untuk generate token unik untuk offline voters
- * 
- * Token akan:
- * 1. Di-generate secara cryptographically secure
- * 2. Di-hash dengan SHA-256 sebelum disimpan ke database
- * 3. Token mentah dicetak untuk diberikan ke panitia/pemilih
- * 
- * Jalankan dengan: npx tsx db/seed/generate-offline-tokens.ts <path-to-offline-voters.csv>
- * 
- * Format CSV:
- * email
- * offline1@students.itb.ac.id
- * offline2@students.itb.ac.id
- */
-
 import { db } from "../drizzle";
 import { voterRegistry } from "../schema";
 import { generateSecureToken, hashToken } from "../../lib/encryption";
@@ -25,12 +7,9 @@ import * as fs from "fs";
 interface TokenOutput {
   email: string;
   token: string; // Token mentah (untuk dicetak)
-  tokenHash: string; // Hash (untuk referensi)
+  tokenHash: string;
 }
 
-/**
- * Parse CSV file berisi email offline voters
- */
 function parseOfflineVotersCSV(filePath: string): string[] {
   const fileContent = fs.readFileSync(filePath, "utf-8");
   const lines = fileContent
@@ -41,9 +20,6 @@ function parseOfflineVotersCSV(filePath: string): string[] {
   return lines.filter((email) => email.includes("@"));
 }
 
-/**
- * Generate tokens untuk offline voters
- */
 async function generateOfflineTokens() {
   const args = process.argv.slice(2);
 
