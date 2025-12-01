@@ -14,7 +14,6 @@ async function updateCandidates() {
   console.log("🔄 Updating candidates with full vision and mission...");
 
   try {
-    // Update Davin (Ketua Umum)
     console.log("\nUpdating Geraldus Yudhistira Davin...");
     await db.update(candidates)
       .set({
@@ -24,7 +23,6 @@ async function updateCandidates() {
       .where(eq(candidates.id, "12023026"));
     console.log("✅ Updated: Geraldus Yudhistira Davin");
 
-    // Update Albert (Senator)
     console.log("\nUpdating Albert Kamaruddin...");
     await db.update(candidates)
       .set({
@@ -53,5 +51,4 @@ async function updateCandidates() {
   process.exit(0);
 }
 
-// Run update
 updateCandidates();

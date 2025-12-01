@@ -18,7 +18,6 @@ async function testAdminAuth() {
     const testToken = "pemilskuy";
     console.log(`📝 Test token: "${testToken}"\n`);
 
-    // Get all active admin tokens
     const allAdminTokens = await db.query.adminTokens.findMany();
     console.log(`📦 Found ${allAdminTokens.length} admin token(s) in database\n`);
 
@@ -27,7 +26,6 @@ async function testAdminAuth() {
       process.exit(1);
     }
 
-    // Test token validation
     let matched = false;
     for (const adminToken of allAdminTokens) {
       console.log(`🔍 Checking admin token: ${adminToken.name} (ID: ${adminToken.id})`);

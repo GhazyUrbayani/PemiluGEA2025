@@ -1,8 +1,6 @@
 import nodemailer, { Transporter } from "nodemailer";
-// import dataEmailNone from "@/db/seed/data-email-none.json";
 
 import { config } from "dotenv";
-// import { emailHTML } from "./html"; // Temporarily disabled
 
 config({ path: ".env.local" });
 
@@ -50,7 +48,6 @@ async function sendEmail(
           `Failed to send email to ${recipient} after ${retries} attempts.`,
         );
       } else {
-        // Delay before retrying
         await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds
       }
     }

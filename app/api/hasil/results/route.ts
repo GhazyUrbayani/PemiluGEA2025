@@ -15,7 +15,6 @@ import { decryptBallot, type EncryptedBallot } from "@/lib/encryption";
 
 export async function GET(req: NextRequest) {
   try {
-    // Check admin authentication
     const adminSessionId = req.cookies.get("admin-session")?.value;
     const userRole = req.cookies.get("user-role")?.value;
 
@@ -26,7 +25,6 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Verify admin token still exists and active
     const adminToken = await db.query.adminTokens.findFirst({
       where: eq(adminTokens.id, adminSessionId),
     });
@@ -38,48 +36,38 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Fetch all votes from ballot box
     const allBallots = await db.query.ballotBox.findMany();
 
-    // Fetch all candidates
     const allCandidates = await db.query.candidates.findMany();
 
-    // Fetch voter statistics
     const allVoters = await db.query.voterRegistry.findMany();
     const totalVoters = allVoters.length;
     const votedCount = allVoters.filter(v => v.hasVoted).length;
     const onlineVoters = allVoters.filter(v => v.voteMethod === "online" && v.hasVoted).length;
     const offlineVoters = allVoters.filter(v => v.voteMethod === "offline" && v.hasVoted).length;
 
-    // Initialize vote counters
     const kahimVotes: Record<string, number> = {};
     const senatorVotes: Record<string, number> = {};
 
-    // Count votes for each candidate
     for (const ballot of allBallots) {
       try {
-        // Decrypt ballot data
         const encryptedData = ballot.encryptedBallotData as EncryptedBallot;
         const decryptedData = decryptBallot(encryptedData);
         
-        // Count Ketua Umum votes (first preference only for display)
         if (decryptedData.ketuaUmum && decryptedData.ketuaUmum.length > 0) {
           const firstChoice = decryptedData.ketuaUmum[0];
           kahimVotes[firstChoice] = (kahimVotes[firstChoice] || 0) + 1;
         }
 
-        // Count Senator votes (first preference only for display)
         if (decryptedData.senator && decryptedData.senator.length > 0) {
           const firstChoice = decryptedData.senator[0];
           senatorVotes[firstChoice] = (senatorVotes[firstChoice] || 0) + 1;
         }
       } catch (error) {
         console.error("Error processing ballot:", error);
-        // Skip invalid ballots
       }
     }
 
-    // Prepare candidate results with vote counts (INCLUDE KOTAK KOSONG)
     const kahimResults = allCandidates
       .filter(c => c.position === "kahim")
       .map(candidate => ({

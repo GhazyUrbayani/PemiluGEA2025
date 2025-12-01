@@ -5,9 +5,6 @@ import { config } from "dotenv";
 
 config({ path: ".env.local" });
 
-// Supabase connection
 const connectionString = process.env.DATABASE_URL!;
-
-// For queries
 const client = postgres(connectionString, { prepare: false });
 export const db = drizzle(client, { schema });

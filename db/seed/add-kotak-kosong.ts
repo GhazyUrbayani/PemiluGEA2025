@@ -6,7 +6,6 @@ async function addKotakKosong() {
   console.log("🗳️ Adding Kotak Kosong candidates...");
 
   try {
-    // Add Kotak Kosong for Kahim position
     const existingKahim = await db
       .select()
       .from(candidates)
@@ -29,7 +28,6 @@ async function addKotakKosong() {
       console.log("ℹ️ Kotak Kosong for Kahim already exists");
     }
 
-    // Add Kotak Kosong for Senator position
     const existingSenator = await db
       .select()
       .from(candidates)

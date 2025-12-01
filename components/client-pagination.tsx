@@ -22,27 +22,20 @@ const ClientPagination = ({
   animate,
   ...props
 }: ClientPaginationProps) => {
-  // Search params
   const searchParams = useSearchParams();
 
-  // Path name
   const pathname = usePathname();
 
-  // If there's no data, don't render pagination
   if (total == 0) return <></>;
 
-  // Get page from search params
   const page = parseInt(searchParams.get("page") ?? "1") ?? 1;
 
-  // Calculate previous and next page
   const previousPage = Math.max(1, page - 1);
   const nextPage = Math.min(Math.ceil(total / totalPerPage), page + 1);
 
-  // Check if previous and next page is disabled
   const isPreviousDisabled = page === 1;
   const isNextDisabled = page === Math.ceil(total / totalPerPage);
 
-  // Number mapper
   const pageMapper: number[] = [];
   const totalPage = Math.ceil(total / totalPerPage);
   if (totalPage <= 5) {
@@ -65,7 +58,6 @@ const ClientPagination = ({
     }
   }
 
-  // URL Creator
   const getTargetURL = (page: number) => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set("page", page.toString());

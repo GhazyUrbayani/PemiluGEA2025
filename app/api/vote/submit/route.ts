@@ -9,15 +9,12 @@ import { v4 as uuidv4 } from "uuid";
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Check authentication (NextAuth session OR cookie session)
     const session = await getServerSession(authOptions);
     let voterEmail: string | undefined;
 
     if (session?.user?.email) {
-      // Online voter (SSO)
       voterEmail = session.user.email;
     } else {
-      // Offline voter (Token) - check cookie
       const voterSessionCookie = req.cookies.get("voter-session");
       voterEmail = voterSessionCookie?.value;
     }
@@ -29,13 +26,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ========================================
-    // DUMMY MODE - Skip database check for dummy emails
-    // ========================================
     const isDummyMode = voterEmail.includes("dummy_") && voterEmail.includes("@test.com");
     
     if (isDummyMode) {
-      // Just log the vote data (don't save to DB)
       const body = await req.json();
       console.log("DUMMY VOTE:", { voterEmail, vote: body });
       
@@ -47,11 +40,7 @@ export async function POST(req: NextRequest) {
         { status: 200 }
       );
     }
-    // ========================================
-    // END DUMMY MODE
-    // ========================================
 
-    // 2. Check if voter exists and eligible
     const voter = await db
       .select()
       .from(voterRegistry)
@@ -65,7 +54,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Check if already voted
     if (voter[0].hasVoted) {
       return NextResponse.json(
         { error: "Anda sudah melakukan voting sebelumnya" },
@@ -73,7 +61,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Get ballot data from request
     const body = await req.json();
     const { ketuaUmum, senator } = body;
 
@@ -84,7 +71,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 5. Encrypt ballot data
     const ballotData = {
       ketuaUmum,
       senator,
@@ -92,16 +78,13 @@ export async function POST(req: NextRequest) {
 
     const encryptedData = encryptBallot(ballotData);
 
-    // 6. Start transaction: Insert ballot + Update voter
     await db.transaction(async (tx) => {
-      // Insert encrypted ballot to ballot box (ANONYMOUS)
       await tx.insert(ballotBox).values({
         id: uuidv4(),
         encryptedBallotData: encryptedData,
         castAt: new Date(),
       });
 
-      // Update voter registry - mark as voted and invalidate token
       await tx
         .update(voterRegistry)
         .set({
@@ -112,7 +95,6 @@ export async function POST(req: NextRequest) {
         .where(eq(voterRegistry.email, voterEmail));
     });
 
-    // Create response with cleared cookies
     const response = NextResponse.json(
       {
         success: true,
@@ -121,7 +103,6 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
 
-    // Clear session cookies to invalidate the session
     response.cookies.set("voter-session", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

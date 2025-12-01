@@ -7,7 +7,6 @@ import { authOptions } from "@/lib/auth-options";
 
 export async function POST() {
   try {
-    // Check authentication (session from NextAuth)
     const session = await getServerSession(authOptions);
     
     if (!session || !session.user?.email) {
@@ -22,7 +21,6 @@ export async function POST() {
 
     const email = session.user.email;
 
-    // Check voter registry
     const voter = await db
       .select()
       .from(voterRegistry)
@@ -41,7 +39,6 @@ export async function POST() {
 
     const voterData = voter[0];
 
-    // Check if eligible
     if (!voterData.isEligible) {
       return NextResponse.json(
         {
@@ -52,7 +49,6 @@ export async function POST() {
       );
     }
 
-    // Check if already voted
     if (voterData.hasVoted) {
       return NextResponse.json(
         {
@@ -63,7 +59,6 @@ export async function POST() {
       );
     }
 
-    // All checks passed
     return NextResponse.json(
       {
         success: true,

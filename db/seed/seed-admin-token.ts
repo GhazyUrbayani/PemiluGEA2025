@@ -1,13 +1,3 @@
-/**
- * Seed Admin Token
- * 
- * Script untuk memasukkan admin token pertama kali ke database.
- * Token diambil dari environment variable ADMIN_TOKEN dan di-hash
- * sebelum disimpan ke Supabase untuk keamanan.
- * 
- * Usage: npx tsx db/seed/seed-admin-token.ts
- */
-
 import { db } from "../drizzle";
 import { adminTokens } from "../schema";
 import { hash } from "bcrypt";
@@ -17,7 +7,6 @@ async function seedAdminToken() {
   console.log("🔐 Starting admin token seeding...\n");
 
   try {
-    // Get admin token from environment variable
     const adminToken = process.env.ADMIN_TOKEN;
 
     if (!adminToken) {
@@ -28,12 +17,10 @@ async function seedAdminToken() {
 
     console.log("✅ Admin token ditemukan di environment variable");
 
-    // Hash the admin token
     console.log("🔒 Hashing admin token...");
     const tokenHash = await hash(adminToken, 12);
     console.log("✅ Token berhasil di-hash\n");
 
-    // Check if admin token already exists
     const existingToken = await db.query.adminTokens.findFirst();
 
     if (existingToken) {
@@ -53,7 +40,6 @@ async function seedAdminToken() {
       console.log("🔄 Flag --force detected, melanjutkan insert...\n");
     }
 
-    // Insert admin token to database
     console.log("📝 Inserting admin token ke database...");
     const newToken = await db.insert(adminTokens).values({
       id: uuidv4(),
@@ -81,5 +67,4 @@ async function seedAdminToken() {
   process.exit(0);
 }
 
-// Run the seed function
 seedAdminToken();

@@ -8,7 +8,6 @@ export async function GET() {
     const voteMethod = cookieStore.get("vote-method");
 
     if (voterSession && voteMethod?.value === "offline") {
-      // Offline user session is considered valid if cookies exist
       return NextResponse.json({
         success: true,
         isAuthenticated: true,
@@ -17,7 +16,6 @@ export async function GET() {
       });
     }
 
-    // If no relevant cookies, session is not for an offline voter
     return NextResponse.json({ success: true, isAuthenticated: false });
   } catch (error) {
     console.error("Session check error:", error);

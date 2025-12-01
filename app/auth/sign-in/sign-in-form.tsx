@@ -30,44 +30,36 @@ function SignInForm() {
   const router = useRouter();
 
   async function onSubmit(data: SignInFormValues) {
-    // Show loading toast
     const loadingToast = toast.loading("Sedang masuk...", {
       description: "Mohon tunggu sebentar",
       duration: Infinity,
     });
 
-    // Destructure form data
     const { nim, password } = data;
 
-    // Create form data
     const formData = new FormData();
     formData.append("nim", nim);
     formData.append("password", password);
 
-    // Make API request
     const res = await signIn("credentials", {
       username: nim,
       password: password,
       redirect: false,
     });
 
-    // Dismiss loading toast
     toast.dismiss(loadingToast);
 
     if (!res?.ok) {
-      // Show error toast
       toast.error("Gagal masuk", {
         description: "Silakan coba lagi",
       });
       return;
     }
 
-    // Show success toast
     toast.success("Berhasil masuk", {
       description: "Selamat datang Admin",
     });
 
-    // Redirect to dashboard page
     router.push("/");
     router.refresh();
   }

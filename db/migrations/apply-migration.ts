@@ -11,17 +11,14 @@ import { config } from "dotenv";
 import * as fs from "fs";
 import * as path from "path";
 
-// Load environment variables
 config({ path: ".env.local" });
 
 async function applyMigration() {
   console.log("🔄 Starting migration process...\n");
 
-  // Create postgres client for direct SQL execution
   const sql = postgres(process.env.DATABASE_URL!, { prepare: false });
 
   try {
-    // Read the migration SQL file
     const migrationFile = path.join(__dirname, "0001_drop_admins_create_admin_tokens.sql");
     console.log(`📄 Reading migration file: ${migrationFile}\n`);
     
@@ -32,7 +29,6 @@ async function applyMigration() {
     console.log(migrationSQL);
     console.log("─────────────────────────────────────────\n");
 
-    // Execute the migration - split by semicolon and execute each statement
     console.log("🚀 Executing migration...");
     const statements = migrationSQL.split(";").filter(s => s.trim().length > 0);
     
@@ -44,7 +40,6 @@ async function applyMigration() {
     
     console.log("✅ Migration executed successfully!\n");
 
-    // Verify the new table exists
     console.log("🔍 Verifying new admin_tokens table...");
     const result = await sql`
       SELECT table_name 
@@ -59,7 +54,6 @@ async function applyMigration() {
       console.log("⚠️  Table 'admin_tokens' not found. Please check the migration.");
     }
 
-    // Check if old admins table is dropped
     console.log("\n🔍 Verifying admins table is dropped...");
     const oldTableCheck = await sql`
       SELECT table_name 
@@ -87,5 +81,4 @@ async function applyMigration() {
   }
 }
 
-// Run the migration
 applyMigration();

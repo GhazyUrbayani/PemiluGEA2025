@@ -12,11 +12,9 @@ import { eq } from "drizzle-orm";
 
 export async function GET(req: NextRequest) {
   try {
-    // Get admin session cookie
     const adminSessionId = req.cookies.get("admin-session")?.value;
     const userRole = req.cookies.get("user-role")?.value;
 
-    // Check if admin session exists
     if (!adminSessionId || userRole !== "admin") {
       return NextResponse.json(
         { isAdmin: false, message: "Tidak ada session admin" },
@@ -24,13 +22,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Verify admin token still exists and active in database
     const adminToken = await db.query.adminTokens.findFirst({
       where: eq(adminTokens.id, adminSessionId),
     });
 
     if (!adminToken || !adminToken.isActive) {
-      // Clear invalid cookies
       const response = NextResponse.json(
         { isAdmin: false, message: "Session admin tidak valid atau tidak aktif" },
         { status: 401 }
@@ -42,7 +38,6 @@ export async function GET(req: NextRequest) {
       return response;
     }
 
-    // Admin verified
     return NextResponse.json({
       isAdmin: true,
       name: adminToken.name,

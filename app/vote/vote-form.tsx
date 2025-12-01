@@ -199,7 +199,6 @@ export default function VoteForm() {
     }
   };
 
-  // Handle tap selection for Kahim (SINGLE CHOICE ONLY)
   const handleKahimSelect = (candidateId: string) => {
     const candidate = kahimCandidates.find(c => c.id === candidateId);
     if (!candidate) return;

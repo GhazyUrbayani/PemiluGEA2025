@@ -64,11 +64,9 @@ async function generateOfflineTokens() {
   console.log(`📄 Reading offline voters from: ${csvPath}`);
 
   try {
-    // Parse CSV
     const emails = parseOfflineVotersCSV(csvPath);
     console.log(`✅ Found ${emails.length} offline voters`);
 
-    // Generate tokens
     console.log("\n🔐 Generating tokens...");
 
     const tokenOutputs: TokenOutput[] = [];
@@ -77,7 +75,6 @@ async function generateOfflineTokens() {
 
     for (const email of emails) {
       try {
-        // Cek apakah email ada di voter registry
         const voter = await db.query.voterRegistry.findFirst({
           where: eq(voterRegistry.email, email),
         });
@@ -94,12 +91,10 @@ async function generateOfflineTokens() {
           continue;
         }
 
-        // Generate token (5-7 digit angka saja untuk voter)
         const tokenLength = 5 + Math.floor(Math.random() * 3); // Random 5-7 digits
         const token = Math.floor(Math.random() * Math.pow(10, tokenLength)).toString().padStart(tokenLength, '0');
         const tokenHash = hashToken(token);
 
-        // Update voter registry
         await db
           .update(voterRegistry)
           .set({
@@ -122,7 +117,6 @@ async function generateOfflineTokens() {
       }
     }
 
-    // Save tokens to file
     const outputPath = `tokens-output-${Date.now()}.txt`;
     let fileContent = "=== OFFLINE VOTING TOKENS ===\n";
     fileContent += `Generated at: ${new Date().toISOString()}\n`;
@@ -155,5 +149,4 @@ async function generateOfflineTokens() {
   process.exit(0);
 }
 
-// Run generation
 generateOfflineTokens();

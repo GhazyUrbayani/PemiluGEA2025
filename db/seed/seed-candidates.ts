@@ -1,20 +1,11 @@
-/**
- * db/seed/seed-candidates.ts
- * 
- * Script untuk seed data kandidat ke database
- * 
- * Jalankan dengan: npx tsx db/seed/seed-candidates.ts
- */
-
 import { db } from "../drizzle";
 import { candidates } from "../schema";
 
-// Data kandidat Ketua Umum BPH
 const kahimCandidates = [
   {
-    id: "12023026", // NIM
+    id: "12023026",
     name: "Geraldus Yudhistira Davin",
-    photoUrl: "/Davin.png", // Foto ada di public/Davin.png
+    photoUrl: "/Davin.png",
     major: "Teknik Geologi",
     batch: 2023,
     vision: "Mewujudkan HMTG \"GEA\" ITB yang berdikari dan profesional melalui lingkungan yang inklusif dalam rangka mewujudkan Keberdampakan yang Absolut.",
@@ -24,12 +15,11 @@ const kahimCandidates = [
   },
 ];
 
-// Data kandidat Senator
 const senatorCandidates = [
   {
     id: "12023075",
     name: "Albert Kamaruddin",
-    photoUrl: "/Albert.png", // Foto ada di public/Albert.png
+    photoUrl: "/Albert.png",
     major: "Teknik Geologi",
     batch: 2023,
     vision: "Badan Kesenatoran HMTG \"GEA\" ITB sebagai penyedia wadah aspiratif dan informatif untuk GEA mengetahui dunia dalam langkah menguasai dunia serta bentuk manifestasi suara HMTG \"GEA\" ITB dalam Kongres KM ITB",
@@ -43,14 +33,12 @@ async function seedCandidates() {
   console.log("🌱 Seeding candidates...");
 
   try {
-    // Insert Ketua Umum candidates
     console.log("Inserting Ketua Umum candidates...");
     for (const candidate of kahimCandidates) {
       await db.insert(candidates).values(candidate);
       console.log(`✅ Inserted: ${candidate.name} (${candidate.id})`);
     }
 
-    // Insert Senator candidates
     console.log("\nInserting Senator candidates...");
     for (const candidate of senatorCandidates) {
       await db.insert(candidates).values(candidate);
@@ -67,5 +55,4 @@ async function seedCandidates() {
   process.exit(0);
 }
 
-// Run seed
 seedCandidates();

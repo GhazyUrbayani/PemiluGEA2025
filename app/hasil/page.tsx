@@ -74,7 +74,6 @@ export default function HasilPage() {
   };
 
   useEffect(() => {
-    // Check admin authentication via cookie
     const checkAdminAuth = async () => {
       try {
         console.log("🔐 Checking admin authentication...");
@@ -90,7 +89,6 @@ export default function HasilPage() {
         if (response.ok && data.isAdmin) {
           console.log("✅ Admin authenticated!");
           setIsAuthorized(true);
-          // Fetch results after authentication
           await fetchResults();
         } else {
           console.log("❌ Not authenticated as admin");
@@ -111,8 +109,7 @@ export default function HasilPage() {
     };
 
     checkAdminAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run only once on mount
+  }, [router]);
 
   if (isLoading || !isAuthorized || !resultsData) {
     return (
@@ -129,14 +126,12 @@ export default function HasilPage() {
 
   const { kahim, senator, statistics } = resultsData;
 
-  // Prepare chart data for Ketua Umum
   const kahimChartData = kahim.map(candidate => ({
     name: candidate.name.split(" ")[0], // First name only for chart
     votes: candidate.votes,
     fullName: candidate.name,
   }));
 
-  // Prepare chart data for Senator
   const senatorChartData = senator.map(candidate => ({
     name: candidate.name.split(" ")[0],
     votes: candidate.votes,

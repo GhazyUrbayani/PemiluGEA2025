@@ -8,7 +8,6 @@
 import nodemailer, { Transporter } from "nodemailer";
 import { config } from "dotenv";
 
-// Load environment variables
 config({ path: ".env.local" });
 
 /**
@@ -211,7 +210,6 @@ export async function sendTokenEmail(
         return { success: false, error: errorMessage };
       }
 
-      // Delay before retry (exponential backoff)
       const delayMs = 2000 * Math.pow(2, attempt); // 2s, 4s, 8s
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }

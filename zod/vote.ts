@@ -29,11 +29,9 @@ export const voteSchema = z
   })
   .refine(
     (data) => {
-      // Check if all sk values are different
       const skValues = [data.sk1, data.sk2, data.sk3, data.sk4];
       const uniqueSkValues = new Set(skValues);
 
-      // Check if all ss values are different
       const ssValues = [data.ss1, data.ss2, data.ss3];
       const uniqueSsValues = new Set(ssValues);
 
@@ -42,7 +40,7 @@ export const voteSchema = z
     {
       message:
         "SK1, SK2, SK3, SK4 must be different values and SS1, SS2, SS3 must be different values",
-      path: ["vote"], // this will make the error appear at the root level
+      path: ["vote"],
     },
   );
 

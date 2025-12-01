@@ -12,7 +12,6 @@ async function testDecryption() {
   try {
     console.log("\n🔍 Testing ballot decryption...\n");
 
-    // Get all ballots
     const ballots = await db.query.ballotBox.findMany();
     console.log(`📦 Found ${ballots.length} ballots\n`);
 
@@ -21,7 +20,6 @@ async function testDecryption() {
       process.exit(0);
     }
 
-    // Test decrypt each ballot
     for (let i = 0; i < ballots.length; i++) {
       const ballot = ballots[i];
       console.log(`\n📋 Ballot ${i + 1}:`);

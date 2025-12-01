@@ -12,7 +12,6 @@ function generateVoterToken(): string {
 
 console.log("\n🎲 Testing Voter Token Generation (5-7 digit angka)\n");
 
-// Generate 20 sample tokens
 const tokens = new Set<string>();
 for (let i = 0; i < 20; i++) {
   const token = generateVoterToken();

@@ -11,7 +11,6 @@ import * as schema from "../schema";
 import * as fs from "fs";
 import * as path from "path";
 
-// Load .env.local
 config({ path: ".env.local" });
 
 async function applyMigration() {

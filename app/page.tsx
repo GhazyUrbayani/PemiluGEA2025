@@ -12,7 +12,6 @@ export default function Home() {
     seconds: 0,
   });
 
-  // Countdown timer to voting day (adjust this date!)
   const votingDate = new Date("2025-12-03T09:00:00").getTime();
 
   useEffect(() => {
@@ -58,7 +57,6 @@ export default function Home() {
               className="h-auto w-full max-w-xs drop-shadow-2xl md:max-w-md"
               priority
               onError={(e) => {
-                // Fallback if logo not found
                 e.currentTarget.style.display = "none";
               }}
             />

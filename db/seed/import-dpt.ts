@@ -1,21 +1,3 @@
-/**
- * db/seed/import-dpt.ts
- * 
- * Script untuk import Daftar Pemilih Tetap (DPT) ke database dengan generate token otomatis
- * 
- * CARA PENGGUNAAN:
- * 1. Letakkan file CSV di folder db/seed/ (misalnya: dpt-2025.csv)
- * 2. Format CSV: NIM,Email,Nama
- * 3. Jalankan: npx tsx db/seed/import-dpt.ts dpt-2025.csv
- * 4. Token akan di-generate otomatis dan disimpan ke file tokens-output-[timestamp].txt
- * 5. Token file berisi email + token untuk setiap pemilih
- * 
- * Contoh CSV (lihat dpt-template.csv):
- * NIM,Email,Nama
- * 12023026,geraldus@students.itb.ac.id,Geraldus Yudhistira Davin
- * 12023075,albert@students.itb.ac.id,Albert Kamaruddin
- */
-
 import { db } from "../drizzle";
 import { voterRegistry } from "../schema";
 import { hash } from "bcrypt";
@@ -33,12 +15,9 @@ interface DPTRow {
   nim: string;
   nama: string;
   angkatan: number;
-  token?: string; // Token mentah untuk output
+  token?: string;
 }
 
-/**
- * Parse CSV file menjadi array of objects
- */
 function parseCSV(filePath: string): DPTRow[] {
   const fileContent = fs.readFileSync(filePath, "utf-8");
   const lines = fileContent.split("\n").filter((line) => line.trim() !== "");
@@ -47,15 +26,12 @@ function parseCSV(filePath: string): DPTRow[] {
     throw new Error("CSV file is empty");
   }
 
-  // Parse header
   const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
 
-  // Validate required columns: NIM, Email, Nama
   if (!headers.includes("nim") || !headers.includes("email") || !headers.includes("nama")) {
     throw new Error("CSV must have columns: NIM, Email, Nama");
   }
 
-  // Parse rows
   const rows: DPTRow[] = [];
   for (let i = 1; i < lines.length; i++) {
     const values = lines[i].split(",").map((v) => v.trim());
@@ -70,19 +46,16 @@ function parseCSV(filePath: string): DPTRow[] {
       row[header] = values[index] || "";
     });
 
-    // Validate email
     if (!row.email || !row.email.includes("@")) {
       console.warn(`⚠️  Skipping row at line ${i + 1}: invalid email`);
       continue;
     }
 
-    // Validate NIM
     if (!row.nim || row.nim.length < 4) {
       console.warn(`⚠️  Skipping row at line ${i + 1}: invalid NIM`);
       continue;
     }
 
-    // Extract angkatan from NIM (e.g., "12023026" -> 2023)
     const angkatan = parseInt("20" + row.nim.substring(0, 2));
 
     rows.push({
@@ -124,7 +97,6 @@ async function importDPT() {
   console.log(`📄 Reading DPT from: ${csvPath}`);
   console.log(`📧 Email sending: ${skipEmail ? "DISABLED" : "ENABLED"}\n`);
 
-  // Setup email transporter jika tidak skip
   let transporter = null;
   if (!skipEmail) {
     console.log("🔌 Connecting to SMTP server...");
@@ -139,11 +111,9 @@ async function importDPT() {
   }
 
   try {
-    // Parse CSV
     const dptRows = parseCSV(csvPath);
     console.log(`✅ Parsed ${dptRows.length} valid rows from CSV\n`);
 
-    // Import to database with token generation
     console.log("🌱 Importing to database + generating tokens...\n");
 
     let successCount = 0;
@@ -155,18 +125,15 @@ async function importDPT() {
     const totalRows = dptRows.length;
     const startTime = Date.now();
 
-    // Spinner frames
     const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
     let spinnerIndex = 0;
 
-    // Function to draw progress bar
     const drawProgressBar = (current: number, total: number, success: number, failed: number, emailSuccess: number, emailFailed: number, currentName?: string) => {
       const percentage = Math.floor((current / total) * 100);
       const barLength = 40;
       const filledLength = Math.floor((percentage / 100) * barLength);
       const bar = "█".repeat(filledLength) + "░".repeat(barLength - filledLength);
       
-      // Calculate ETA
       const elapsed = Date.now() - startTime;
       const rate = current > 0 ? elapsed / current : 0;
       const remaining = Math.ceil((total - current) * rate / 1000); // in seconds
@@ -176,49 +143,40 @@ async function importDPT() {
         ? `Done in ${Math.ceil(elapsed / 1000)}s`
         : "Calculating...";
       
-      // Spinner
       const spinner = current < total ? spinnerFrames[spinnerIndex % spinnerFrames.length] : "✓";
       spinnerIndex++;
       
-      // Clear entire box area
       const linesToClear = skipEmail ? 6 : 7;
       
-      // Move cursor up to the start of the box
       for (let i = 1; i < linesToClear; i++) {
         process.stdout.write("\x1b[1A"); // Move up
       }
       
-      // Clear all lines
       for (let i = 0; i < linesToClear; i++) {
         process.stdout.write("\r\x1b[K"); // Clear line
         if (i < linesToClear - 1) process.stdout.write("\n"); // Move down
       }
       
-      // Move cursor back to top
       for (let i = 1; i < linesToClear; i++) {
         process.stdout.write("\x1b[1A"); // Move up
       }
       
       console.log(`┌${"─".repeat(70)}┐`);
       
-      // Line 1: Progress bar with spinner and ETA
       const line1Content = ` ${spinner} Progress: [${bar}] ${percentage}% | ${etaText}`;
       const line1Padding = Math.max(0, 70 - line1Content.length);
       console.log(`│${line1Content}${" ".repeat(line1Padding)}│`);
       
-      // Line 2: Import statistics
       const line2Content = ` 📊 Import: ${current}/${total} | ✅ ${success} | ❌ ${failed}`;
       const line2Padding = Math.max(0, 70 - line2Content.length);
       console.log(`│${line2Content}${" ".repeat(line2Padding)}│`);
       
-      // Line 3: Email statistics (only if not skipped)
       if (!skipEmail) {
         const line3Content = ` 📧 Email:  Sent ${emailSuccess} | Failed ${emailFailed}`;
         const line3Padding = Math.max(0, 70 - line3Content.length);
         console.log(`│${line3Content}${" ".repeat(line3Padding)}│`);
       }
       
-      // Line 4: Current processing or status
       if (currentName && current < total) {
         const truncatedName = currentName.length > 50 ? currentName.substring(0, 47) + "..." : currentName;
         const line4Content = ` 👤 Processing: ${truncatedName}`;
@@ -235,7 +193,6 @@ async function importDPT() {
       console.log(`└${"─".repeat(70)}┘`);
     };
 
-    // Initial display
     const initialLines = skipEmail ? 6 : 7;
     for (let i = 0; i < initialLines; i++) console.log("");
     drawProgressBar(0, totalRows, 0, 0, 0, 0);
@@ -243,12 +200,10 @@ async function importDPT() {
     for (let i = 0; i < dptRows.length; i++) {
       const row = dptRows[i];
       try {
-        // Generate token (5-7 digit angka saja untuk voter)
         const tokenLength = 5 + Math.floor(Math.random() * 3); // Random 5-7 digits
         const token = Math.floor(Math.random() * Math.pow(10, tokenLength)).toString().padStart(tokenLength, '0');
         const tokenHash = await hash(token, 10);
 
-        // Insert to database
         await db.insert(voterRegistry).values({
           email: row.email,
           nim: row.nim,
@@ -259,7 +214,6 @@ async function importDPT() {
           tokenHash: tokenHash,
         });
 
-        // Save token for output
         tokenOutputs.push({
           email: row.email,
           nama: row.nama,
@@ -268,10 +222,8 @@ async function importDPT() {
 
         successCount++;
 
-        // Update progress bar with current processing
         drawProgressBar(i + 1, totalRows, successCount, errorCount, emailSuccessCount, emailErrorCount, `${row.nama} (${row.email})`);
 
-        // Send email jika tidak skip
         if (!skipEmail && transporter) {
           const emailResult = await sendTokenEmail(
             transporter,
@@ -290,32 +242,26 @@ async function importDPT() {
             });
           }
 
-          // Update progress bar after email
           drawProgressBar(i + 1, totalRows, successCount, errorCount, emailSuccessCount, emailErrorCount, `${row.nama} (${row.email})`);
 
-          // Delay antar email (rate limiting)
           await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second
         }
       } catch (error) {
         errorCount++;
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
         
-        // Store error for later display
         emailErrors.push({
           email: row.email,
           error: errorMessage,
         });
         
-        // Update progress bar
         drawProgressBar(i + 1, totalRows, successCount, errorCount, emailSuccessCount, emailErrorCount, `${row.nama} (${row.email})`);
       }
     }
 
-    // Final display
     drawProgressBar(totalRows, totalRows, successCount, errorCount, emailSuccessCount, emailErrorCount);
     console.log("\n"); // Add space after progress bar completes
 
-    // Save tokens to file
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const outputPath = path.join(__dirname, `tokens-output-${timestamp}.txt`);
     
@@ -337,7 +283,6 @@ async function importDPT() {
       fileContent += "\n";
     });
 
-    // Email errors section
     if (!skipEmail && emailErrors.length > 0) {
       fileContent += "\n" + "=".repeat(80) + "\n";
       fileContent += "EMAIL ERRORS (Kirim manual untuk yang gagal):\n\n";
@@ -387,5 +332,4 @@ async function importDPT() {
   process.exit(0);
 }
 
-// Run import
 importDPT();
