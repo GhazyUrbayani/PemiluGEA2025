@@ -15,11 +15,11 @@ import {
 // dan status apakah mereka sudah memilih atau belum.
 // TIDAK menyimpan data suara aktual.
 export const voterRegistry = pgTable("voter_registry", {
-  email: varchar("email", { length: 256 }).primaryKey(), // Email dari SSO (untuk online voter)
+  email: varchar("email", { length: 256 }), // Email dari SSO (untuk online voter)
   tokenHash: varchar("token_hash", { length: 256 }), // Hash dari token unik (untuk offline voter), nullable
   hasVoted: boolean("has_voted").default(false).notNull(), // Status sudah memilih
   isEligible: boolean("is_eligible").default(true).notNull(), // Apakah berhak memilih (dari DPT)
-  nim: varchar("nim", { length: 20 }), // NIM mahasiswa (opsional untuk tracking)
+  nim: varchar("nim", { length: 20 }).primaryKey(), // NIM mahasiswa (opsional untuk tracking)
   angkatan: integer("angkatan"), // Angkatan mahasiswa (opsional)
   voteMethod: varchar("vote_method", { length: 20 }), // 'online' atau 'offline'
   createdAt: timestamp("created_at").defaultNow(),
