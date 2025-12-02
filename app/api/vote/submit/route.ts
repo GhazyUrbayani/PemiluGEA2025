@@ -10,23 +10,24 @@ import { v4 as uuidv4 } from "uuid";
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+    let voterNim: string | undefined;
     let voterEmail: string | undefined;
 
     if (session?.user?.email) {
       voterEmail = session.user.email;
     } else {
       const voterSessionCookie = req.cookies.get("voter-session");
-      voterEmail = voterSessionCookie?.value;
+      voterNim = voterSessionCookie?.value;
     }
 
-    if (!voterEmail) {
+    if (!voterEmail && !voterNim) {
       return NextResponse.json(
         { error: "Tidak terautentikasi" },
         { status: 401 }
       );
     }
 
-    const isDummyMode = voterEmail.includes("dummy_") && voterEmail.includes("@test.com");
+    const isDummyMode = voterEmail && voterEmail.includes("dummy_") && voterEmail.includes("@test.com");
     
     if (isDummyMode) {
       const body = await req.json();
@@ -41,13 +42,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const voter = await db
-      .select()
-      .from(voterRegistry)
-      .where(eq(voterRegistry.email, voterEmail))
-      .limit(1);
+    let voter;
+    if (voterNim) {
+      voter = await db
+        .select()
+        .from(voterRegistry)
+        .where(eq(voterRegistry.nim, voterNim))
+        .limit(1);
+    } else if (voterEmail) {
+      voter = await db
+        .select()
+        .from(voterRegistry)
+        .where(eq(voterRegistry.email, voterEmail))
+        .limit(1);
+    }
 
-    if (!voter.length || !voter[0].isEligible) {
+    if (!voter || !voter.length || !voter[0].isEligible) {
       return NextResponse.json(
         { error: "Anda tidak terdaftar dalam DPT" },
         { status: 403 }
@@ -77,6 +87,7 @@ export async function POST(req: NextRequest) {
     };
 
     const encryptedData = encryptBallot(ballotData);
+    const voterNimToUpdate = voter[0].nim;
 
     await db.transaction(async (tx) => {
       await tx.insert(ballotBox).values({
@@ -89,10 +100,10 @@ export async function POST(req: NextRequest) {
         .update(voterRegistry)
         .set({
           hasVoted: true,
-          tokenHash: null, // Invalidate token so it can't be reused
+          tokenHash: null,
           updatedAt: new Date(),
         })
-        .where(eq(voterRegistry.email, voterEmail));
+        .where(eq(voterRegistry.nim, voterNimToUpdate));
     });
 
     const response = NextResponse.json(

@@ -1,15 +1,24 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
 import { voterRegistry } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+    let voterNim: string | undefined;
+    let voterEmail: string | undefined;
     
-    if (!session || !session.user?.email) {
+    if (session?.user?.email) {
+      voterEmail = session.user.email;
+    } else {
+      const voterSessionCookie = req.cookies.get("voter-session");
+      voterNim = voterSessionCookie?.value;
+    }
+    
+    if (!voterEmail && !voterNim) {
       return NextResponse.json(
         {
           error: "Unauthorized",
@@ -19,15 +28,22 @@ export async function POST() {
       );
     }
 
-    const email = session.user.email;
+    let voter;
+    if (voterNim) {
+      voter = await db
+        .select()
+        .from(voterRegistry)
+        .where(eq(voterRegistry.nim, voterNim))
+        .limit(1);
+    } else if (voterEmail) {
+      voter = await db
+        .select()
+        .from(voterRegistry)
+        .where(eq(voterRegistry.email, voterEmail))
+        .limit(1);
+    }
 
-    const voter = await db
-      .select()
-      .from(voterRegistry)
-      .where(eq(voterRegistry.email, email))
-      .limit(1);
-
-    if (voter.length === 0) {
+    if (!voter || voter.length === 0) {
       return NextResponse.json(
         {
           error: "Not Found",

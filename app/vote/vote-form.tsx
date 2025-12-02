@@ -176,19 +176,6 @@ export default function VoteForm() {
         ];
       }
 
-      kahim.push({
-        id: "KOTAK_KOSONG_KAHIM",
-        name: "Kotak Kosong",
-        photoUrl: "/logos/pemilu logo fix.png",
-        position: "kahim",
-      });
-      senator.push({
-        id: "KOTAK_KOSONG_SENATOR",
-        name: "Kotak Kosong",
-        photoUrl: "/logos/pemilu logo fix.png",
-        position: "senator",
-      });
-
       setKahimCandidates(kahim);
       setSenatorCandidates(senator);
     } catch (error) {
