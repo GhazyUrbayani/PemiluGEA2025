@@ -1,7 +1,7 @@
 import { db } from "../drizzle";
 import { voterRegistry } from "../schema";
 import { generateSecureToken, hashToken } from "../../lib/encryption";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import * as fs from "fs";
 
 interface TokenOutput {
@@ -67,9 +67,42 @@ async function generateOfflineTokens() {
           continue;
         }
 
-        const tokenLength = 5 + Math.floor(Math.random() * 3); // Random 5-7 digits
-        const token = Math.floor(Math.random() * Math.pow(10, tokenLength)).toString().padStart(tokenLength, '0');
-        const tokenHash = hashToken(token);
+        // Generate unique token with collision check
+        let token = "";
+        let tokenHash = "";
+        let isUnique = false;
+        let retryCount = 0;
+        const MAX_RETRIES = 10;
+
+        while (!isUnique && retryCount < MAX_RETRIES) {
+          const tokenLength = 5 + Math.floor(Math.random() * 3); // Random 5-7 digits
+          token = Math.floor(Math.random() * Math.pow(10, tokenLength))
+            .toString()
+            .padStart(tokenLength, "0");
+          tokenHash = hashToken(token);
+
+          // Check if this tokenHash already exists in database
+          const existingToken = await db.query.voterRegistry.findFirst({
+            where: eq(voterRegistry.tokenHash, tokenHash),
+          });
+
+          if (!existingToken) {
+            isUnique = true;
+          } else {
+            retryCount++;
+            console.log(
+              `🔄 Token collision detected for ${email}, retrying... (attempt ${retryCount}/${MAX_RETRIES})`
+            );
+          }
+        }
+
+        if (!isUnique) {
+          console.error(
+            `❌ Failed to generate unique token for ${email} after ${MAX_RETRIES} attempts`
+          );
+          errorCount++;
+          continue;
+        }
 
         await db
           .update(voterRegistry)
