@@ -2,6 +2,7 @@ import { db } from "../drizzle";
 import { voterRegistry } from "../schema";
 import { hash } from "bcrypt";
 import { randomBytes } from "crypto";
+import { eq } from "drizzle-orm";
 import * as fs from "fs";
 import * as path from "path";
 import {
@@ -197,9 +198,38 @@ async function importDPT() {
     for (let i = 0; i < dptRows.length; i++) {
       const row = dptRows[i];
       try {
-        const tokenLength = 5 + Math.floor(Math.random() * 3); // Random 5-7 digits
-        const token = Math.floor(Math.random() * Math.pow(10, tokenLength)).toString().padStart(tokenLength, '0');
-        const tokenHash = await hash(token, 10);
+        // Generate unique token with collision check
+        let token = "";
+        let tokenHash = "";
+        let isUnique = false;
+        let retryCount = 0;
+        const MAX_RETRIES = 10;
+
+        while (!isUnique && retryCount < MAX_RETRIES) {
+          const tokenLength = 5 + Math.floor(Math.random() * 3); // Random 5-7 digits
+          token = Math.floor(Math.random() * Math.pow(10, tokenLength))
+            .toString()
+            .padStart(tokenLength, "0");
+          tokenHash = await hash(token, 10);
+
+          // Check if this tokenHash already exists in database
+          const existingToken = await db.query.voterRegistry.findFirst({
+            where: eq(voterRegistry.tokenHash, tokenHash),
+          });
+
+          if (!existingToken) {
+            isUnique = true;
+          } else {
+            retryCount++;
+            // Note: collision detected, will retry
+          }
+        }
+
+        if (!isUnique) {
+          throw new Error(
+            `Failed to generate unique token after ${MAX_RETRIES} attempts`
+          );
+        }
 
         await db.insert(voterRegistry).values({
           email: row.email,
